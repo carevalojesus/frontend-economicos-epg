@@ -147,8 +147,8 @@ onMounted(() => {
                     </a>
                   </div>
                 </td>
-                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
-                  {{ pago.nombre_cliente }}
+                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                  {{ concepto.persona }}
                 </td>
                 <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
                   S/

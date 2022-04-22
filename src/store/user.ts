@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', {
 
     async login(email: string, password: string) {
       try {
-        const { data } = await axios.post('/accounts/login/', {
+        const { status, data } = await axios.post('/accounts/login/', {
           email,
           password,
         })
@@ -61,7 +61,7 @@ export const useUserStore = defineStore('user', {
         await this.save_to_local_storage(token)
         this.user = user
         this.groups = groups
-        return data
+        return status
       }
       catch (e) {
         return null

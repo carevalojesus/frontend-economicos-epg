@@ -125,7 +125,7 @@ onMounted(() => {
                     <a href="#" class="group inline-flex space-x-2 truncate text-sm">
                       <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
-                        {{ pago.concepto }}
+                        {{ pago.concepto_nombre }}
                       </p>
                     </a>
                   </div>

@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
-import { CashIcon, UserIcon } from '@heroicons/vue/solid'
-import {
-  Combobox, ComboboxButton, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions, Dialog,
-  DialogOverlay, TransitionChild, TransitionRoot,
-} from '@headlessui/vue'
+import { CashIcon, ChevronDownIcon } from '@heroicons/vue/solid'
+import { Menu, MenuButton, MenuItem, MenuItems, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
+const meses = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+]
 const conceptos = [
   {
     id: 1,
@@ -83,9 +94,47 @@ const open = true
               <label for="buscar" class="sr-only">Buscar</label>
               <input id="buscar" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar pago">
             </div>
-            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Nuevo pago
-            </button>
+            <Menu as="div" class="relative ml-3">
+              <MenuButton type="button" class="flex items-center rounded-md border border-gray-300 bg-white py-2 pl-3 pr-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50">
+                Año
+                <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+              </MenuButton>
+
+              <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                <MenuItems class="focus:outline-none absolute right-0 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div class="py-1">
+                    <MenuItem v-slot="{ active }">
+                      <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">2019</a>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                      <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">2020</a>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                      <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">2021</a>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                      <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">2022</a>
+                    </MenuItem>
+                  </div>
+                </MenuItems>
+              </transition>
+            </Menu>
+            <Menu as="div" class="relative ml-3">
+              <MenuButton type="button" class="flex items-center rounded-md border border-gray-300 bg-white py-2 pl-3 pr-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50">
+                Mes
+                <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+              </MenuButton>
+
+              <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                <MenuItems class="focus:outline-none absolute right-0 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div class="py-1" v-for="mes in meses" :key="mes">
+                    <MenuItem v-slot="{ active }">
+                      <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{mes}}</a>
+                    </MenuItem>
+                  </div>
+                </MenuItems>
+              </transition>
+            </Menu>
           </div>
         </div>
       </div>
@@ -134,7 +183,7 @@ const open = true
                   </div>
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                 {{ concepto.persona }}
+                  {{ concepto.persona }}
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
                   {{ concepto.moneda }}

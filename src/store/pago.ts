@@ -31,5 +31,18 @@ export const UsePagoStore = defineStore('pago', {
         return null
       }
     },
+
+    async set_pagos_sin_conciliar(search: string) {
+      try {
+        const params = {
+          search,
+        }
+        const { data } = await axios.get('/economicos/pagos-sin-conciliar/', { params })
+        this.pagos = data
+      }
+      catch (e) {
+        return null
+      }
+    },
   },
 })

@@ -10,6 +10,7 @@ import type { ConceptoModel, ProgramaModel } from '~/interfaces/models'
 import { UseConceptoStore } from '~/store/concepto'
 import { UseProgramaStore } from '~/store/programa'
 
+
 const estadoEstilo = {
   activo: 'bg-green-100 text-green-800',
   processing: 'bg-yellow-100 text-yellow-800',

@@ -22,13 +22,16 @@ const pagoModel = ref<PagoModel>({
   monto: 0,
   is_active: true,
   concepto: 0,
+  concepto_nombre: '',
   is_conciliado: false,
 })
-const estadoEstilo = {
-  activo: 'bg-green-100 text-green-800',
-  inactivo: 'bg-yellow-100 text-yellow-800',
-  obsoleto: 'bg-gray-100 text-gray-800',
+
+const estadoEstilo = (isConciliado: boolean) => {
+  if (isConciliado)
+    return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-green-100 text-green-800'
+  return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-yellow-100 text-yellow-800'
 }
+
 const query = ref('')
 const conceptoStore = UseConceptoStore()
 const conceptoSelected = ref({} as ConceptoModel)
@@ -37,6 +40,7 @@ onMounted(() => {
   pagoStore.set_pagos('')
   conceptoStore.set_conceptos('')
 })
+
 </script>
 <template>
   <div class="bg-white shadow">
@@ -78,9 +82,17 @@ onMounted(() => {
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
             <div>
               <label for="buscar" class="sr-only">Buscar</label>
-              <input id="buscar" v-model="pagoStr" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar pago" @input="pagoStore.set_pagos(pagoStr)">
+              <input
+                id="buscar" v-model="pagoStr" type="search" name="buscar"
+                class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="Buscar pago" @input="pagoStore.set_pagos(pagoStr)"
+              >
             </div>
-            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" @click="open = true">
+            <button
+              type="button"
+              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click="open = true"
+            >
               Nuevo pago
             </button>
           </div>
@@ -110,7 +122,9 @@ onMounted(() => {
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   IMPORTE
                 </th>
-                <th class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block">
+                <th
+                  class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
+                >
                   ESTADO
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -123,7 +137,10 @@ onMounted(() => {
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
                     <a href="#" class="group inline-flex space-x-2 truncate text-sm">
-                      <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                      <CashIcon
+                        class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
                         {{ pago.concepto_nombre }}
                       </p>
@@ -138,11 +155,8 @@ onMounted(() => {
                   <span class="text-gray-900 font-medium">{{ pago.monto }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span v-if="pago.is_conciliado" :class="[estadoEstilo['inactivo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
-                    CONCILIADO
-                  </span>
-                  <span v-else :class="[estadoEstilo['activo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
-                    INGRESADO
+                  <span :class="estadoEstilo(pago.is_conciliado)">
+                    {{ pago.is_conciliado ? 'Conciliado' : 'Ingresado' }}
                   </span>
                 </td>
                 <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
@@ -161,7 +175,10 @@ onMounted(() => {
             </tbody>
           </table>
           <!-- Pagination -->
-          <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
+          <nav
+            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+            aria-label="Pagination"
+          >
             <div class="hidden sm:block">
               <p class="text-sm text-gray-700">
                 Showing
@@ -180,8 +197,16 @@ onMounted(() => {
               </p>
             </div>
             <div class="flex-1 flex justify-between sm:justify-end">
-              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Anterior </a>
-              <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Siguiente </a>
+              <a
+                href="#"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Anterior </a>
+              <a
+                href="#"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Siguiente </a>
             </div>
           </nav>
         </div>
@@ -282,24 +307,21 @@ onMounted(() => {
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Documento</label>
                       <input
-                        id="codigo-pago" type="text" name="codigo-pago"
-                        autocomplete="off"
+                        id="codigo-pago" type="text" name="codigo-pago" autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Operación</label>
                       <input
-                        id="codigo-pago" type="text" name="codigo-pago"
-                        autocomplete="off"
+                        id="codigo-pago" type="text" name="codigo-pago" autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Fecha</label>
                       <input
-                        id="codigo-pago" type="date" name="codigo-pago"
-                        autocomplete="off"
+                        id="codigo-pago" type="date" name="codigo-pago" autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
                     </div>

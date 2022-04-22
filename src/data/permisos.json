@@ -1,0 +1,14 @@
+[
+    {
+        "name": "user",
+        "model": "usermodel"
+    },
+    {
+        "name": "concepto",
+        "model": "concepto"
+    },
+    {
+        "name": "pago",
+        "model": "pago"
+    }
+]

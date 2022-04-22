@@ -14,6 +14,11 @@ export interface GrupoModel {
   name: string
 }
 
+export interface PermissionsModel {
+  codename: string
+  model: string
+}
+
 export interface ConceptoModel {
   id: number
   nombre: string

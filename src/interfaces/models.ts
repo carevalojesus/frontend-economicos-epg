@@ -14,6 +14,11 @@ export interface GrupoModel {
   name: string
 }
 
+export interface PermissionsModel {
+  codename: string
+  model: string
+}
+
 export interface ConceptoModel {
   id: number
   nombre: string
@@ -27,6 +32,7 @@ export interface PagoModel {
   nombre_cliente: string
   numero_documento: string
   numero_operacion: string
+  numero_conciliacion: string
   fecha_operacion: string
   monto: Number
   is_active: boolean

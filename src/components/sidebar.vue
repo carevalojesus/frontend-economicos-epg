@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CashIcon, CogIcon, DocumentReportIcon, HomeIcon, QuestionMarkCircleIcon, ShieldCheckIcon, TemplateIcon, ViewGridAddIcon } from '@heroicons/vue/outline'
+import { CashIcon, CogIcon, DocumentReportIcon, HomeIcon, QuestionMarkCircleIcon, ShieldCheckIcon, ViewGridAddIcon } from '@heroicons/vue/outline'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 const navigation = [
@@ -19,7 +19,7 @@ const navigation = [
     current: false,
     children: [
       { name: 'Ver Pagos', href: 'ver-pagos' },
-      { name: 'Asignar Pagos', href: 'asignar-pagos' },
+      { name: 'Conciliar Pagos', href: 'conciliar-pagos' },
       { name: 'Importar Pagos', href: 'importar-pagos' },
     ],
   },
@@ -29,7 +29,7 @@ const navigation = [
     current: false,
     children: [
       { name: 'Económico', href: 'reporte-economico' },
-      { name: 'Ingresos', href: 'asignar-pagos' },
+      { name: 'Ingresos', href: 'conciliar-pagos' },
       { name: 'Programas', href: 'importar-pagos' },
     ],
   },

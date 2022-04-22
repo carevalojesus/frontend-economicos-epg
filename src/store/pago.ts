@@ -40,5 +40,30 @@ export const UsePagoStore = defineStore('pago', {
         return null
       }
     },
+    async set_pagos_sin_conciliar(search: string) {
+      try {
+        const params = {
+          search,
+        }
+        const { data } = await axios.get('/economicos/pagos-sin-conciliar/', { params })
+        this.pagos = data
+      }
+      catch (e) {
+        return null
+      }
+    },
+    async save_pago(pago: PagoModel) {
+      try {
+        let response = null
+        if (pago.id)
+          response = await axios.put(`economicos/pagos/${pago.id}/`, pago)
+        else
+          response = await axios.post('/economicos/pagos/', pago)
+        return response
+      }
+      catch (e) {
+        return null
+      }
+    },
   },
 })

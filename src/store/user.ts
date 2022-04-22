@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import axios from '../plugins/axios'
-import type { UserModel } from '~/interfaces/models'
+import type { GrupoModel, PermissionsModel, UserModel } from '~/interfaces/models'
 
 export const useUserStore = defineStore('user', {
   state: () => {
     return {
       user: {} as UserModel,
-      groups: [] as string[],
+      groups: [] as GrupoModel[],
+      permissions: [] as PermissionsModel[],
     }
   },
   getters: {
@@ -57,10 +58,11 @@ export const useUserStore = defineStore('user', {
           email,
           password,
         })
-        const { token, user, groups } = data
+        const { token, user, groups, permissions } = data
         await this.save_to_local_storage(token)
         this.user = user
         this.groups = groups
+        this.permissions = permissions
         return { status, data }
       }
       catch (e) {

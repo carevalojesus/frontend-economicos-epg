@@ -1,19 +1,9 @@
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
-import { CashIcon } from '@heroicons/vue/solid'
-import {
-  Combobox, ComboboxButton, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions, Dialog,
-  DialogOverlay, TransitionChild, TransitionRoot,
-} from '@headlessui/vue'
 import { createToast } from 'mosha-vue-toastify'
 import type { PagoModel } from '~/interfaces/models'
 import { UseConceptoStore } from '~/store/concepto'
 import { UsePagoStore } from '~/store/pago'
-const estadoEstilo = {
-  activo: 'bg-green-100 text-green-800',
-  inactivo: 'bg-yellow-100 text-yellow-800',
-  obsoleto: 'bg-gray-100 text-gray-800',
-}
 const conceptoStore = UseConceptoStore()
 const pagoStore = UsePagoStore()
 const pagosData = ref<PagoModel[]>([])

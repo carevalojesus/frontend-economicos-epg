@@ -36,6 +36,7 @@ export interface PagoModel {
   monto: Number
   is_active: boolean
   concepto: number
+  is_conciliado: boolean
 }
 export interface ProgramaModel {
   id: number

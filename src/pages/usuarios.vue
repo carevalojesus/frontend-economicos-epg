@@ -1,0 +1,201 @@
+<script setup lang="ts">
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
+import { CashIcon, CheckIcon } from '@heroicons/vue/solid'
+import { Dialog, DialogOverlay, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+const usuarios = [
+  {
+    id: 1,
+    name: 'CHRISTIAN AREVALO',
+    rol: 'Administrador',
+    estado: 'activo',
+    login: '2020-07-11',
+  },
+  {
+    id: 2,
+    name: 'JHONATAN GONZALEZ',
+    rol: 'Administrador',
+    estado: 'activo',
+    login: '2020-07-11',
+  },
+  {
+    id: 3,
+    name: 'MAICK DAVID',
+    rol: 'Administrador',
+    estado: 'activo',
+    login: '2020-07-11',
+  },
+]
+const estadoEstilo = {
+  activo: 'bg-green-100 text-green-800',
+  inactivo: 'bg-yellow-100 text-yellow-800',
+  obsoleto: 'bg-gray-100 text-gray-800',
+}
+const open = ref(false)
+</script>
+<template>
+  <div class="bg-white shadow">
+    <div class="px-4 sm:px-6 lg:max-w-6xl lg:mx-auto lg:px-8">
+      <div class="py-6 lg:border-t lg:border-gray-200">
+        <div class="flex-1 min-w-0">
+          <nav class="sm:hidden" aria-label="Back">
+            <a href="#" class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+              <ChevronLeftIcon class="flex-shrink-0 -ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              Back
+            </a>
+          </nav>
+          <nav class="hidden sm:flex" aria-label="Breadcrumb">
+            <ol role="list" class="flex items-center space-x-4">
+              <li>
+                <div class="flex">
+                  <router-link to="home" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Home
+                  </router-link>
+                </div>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <ChevronRightIcon class="flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <router-link to="usuarios" class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Usuarios
+                  </router-link>
+                </div>
+              </li>
+            </ol>
+          </nav>
+        </div>
+        <div class="mt-2 md:flex md:items-center md:justify-between">
+          <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-primary-700 sm:text-3xl sm:truncate">
+              Lista de usuarios
+            </h2>
+          </div>
+          <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+            <div>
+              <label for="buscar" class="sr-only">Buscar</label>
+              <input id="buscar" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar usuario">
+            </div>
+            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" @click="open = true">
+              Nuevo usuario
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class=" md:flex md:items-center md:justify-between lg:border-t lg:border-gray-200" />
+    </div>
+  </div>
+  <!-- contenido -->
+  <h2 class="max-w-6xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-900 sm:px-6 lg:px-8">
+    Recent activity
+  </h2>
+
+  <div class="hidden sm:block">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col mt-2">
+        <div class="align-middle min-w-full overflow-x-auto shadow overflow-hidden sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  NOMBRES
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ROL
+                </th>
+                <th class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block">
+                  ESTADO
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  FECHA
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="usuario in usuarios" :key="usuario.id" class="bg-white">
+                <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div class="flex">
+                    <a href="#" class="group inline-flex space-x-2 truncate text-sm">
+                      <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                      <p class="text-gray-500 truncate group-hover:text-gray-900">
+                        {{ usuario.name }}
+                      </p>
+                    </a>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                  {{ usuario.rol }}
+                </td>
+                <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
+                  <span :class="[estadoEstilo[usuario.estado], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                    {{ usuario.estado }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                  <time>{{ usuario.login }}</time>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Pagination -->
+          <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
+            <div class="hidden sm:block">
+              <p class="text-sm text-gray-700">
+                Showing
+                {{ ' ' }}
+                <span class="font-medium">1</span>
+                {{ ' ' }}
+                to
+                {{ ' ' }}
+                <span class="font-medium">10</span>
+                {{ ' ' }}
+                of
+                {{ ' ' }}
+                <span class="font-medium">20</span>
+                {{ ' ' }}
+                results
+              </p>
+            </div>
+            <div class="flex-1 flex justify-between sm:justify-end">
+              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Anterior </a>
+              <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Siguiente </a>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
+  <TransitionRoot as="template" :show="open">
+    <Dialog as="div" class="fixed z-10 inset-0 overflow-y-auto" @close="open = false">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <DialogOverlay class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        </TransitionChild>
+
+        <!-- This element is to trick the browser into centering the modal contents. -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+          <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+            <div>
+              <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                <CheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
+              </div>
+              <div class="mt-3 text-center sm:mt-5">
+                <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900"> Payment successful </DialogTitle>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur amet labore.</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 sm:mt-6">
+              <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm" @click="open = false">Go back to dashboard</button>
+            </div>
+          </div>
+        </TransitionChild>
+      </div>
+    </Dialog>
+  </TransitionRoot>
+</template>
+<route lang="yaml">
+meta:
+  layout: default
+</route>

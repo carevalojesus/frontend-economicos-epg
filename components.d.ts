@@ -4,8 +4,10 @@
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Navbar: typeof import('./src/components/navbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Sidebar: typeof import('./src/components/sidebar.vue')['default']
   }
 }
 

@@ -15,6 +15,9 @@ export const UseConceptoStore = defineStore('concepto', {
     filter_conceptos_by_nombre: state => (nombre: string) => {
       return state.conceptos.filter(concepto => concepto.nombre.toLowerCase().includes(nombre.toLowerCase()))
     },
+    find_conceptos_by_id: state => (id: number) => {
+      return state.conceptos.find(row => row.id === id) as ConceptoModel
+    },
   },
   actions: {
     async set_conceptos(search: string) {

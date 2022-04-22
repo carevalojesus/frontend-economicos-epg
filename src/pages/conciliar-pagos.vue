@@ -1,10 +1,30 @@
 <script setup lang="ts">
+import { createToast } from 'mosha-vue-toastify'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
 import { CashIcon } from '@heroicons/vue/solid'
+import {
+  Dialog,
+  DialogOverlay, TransitionChild, TransitionRoot,
+} from '@headlessui/vue'
 import { UsePagoStore } from '~/store/pago'
+import type { PagoModel } from '~/interfaces/models'
 
 const pagoStore = UsePagoStore()
 const buscar = ref('')
+const open = ref(false)
+const pagoModel = ref<PagoModel>({
+  id: 0,
+  nombre_cliente: '',
+  numero_documento: '',
+  numero_operacion: '',
+  fecha_operacion: '',
+  monto: 0,
+  is_active: true,
+  concepto: 0,
+  concepto_nombre: '',
+  is_conciliado: false,
+  numero_conciliacion: '',
+})
 
 const estadoEstilo = (isConciliado: boolean) => {
   if (isConciliado)
@@ -19,7 +39,47 @@ onMounted(() => {
 watch(buscar, () => {
   pagoStore.set_pagos_sin_conciliar(buscar.value)
 })
+const eventCancel = async() => {
+  pagoModel.value = ({
+    id: 0,
+    nombre_cliente: '',
+    numero_documento: '',
+    numero_operacion: '',
+    fecha_operacion: '',
+    monto: 0,
+    is_active: true,
+    concepto: 0,
+    is_conciliado: false,
+    concepto_nombre: '',
+    numero_conciliacion: '',
+  })
+  open.value = false
+}
+const eventEdit = async(id: number) => {
+  const pago = await pagoStore.set_concepto_by_id(id)
+  pagoModel.value.id = pago.id
+  pagoModel.value.nombre_cliente = pago.nombre_cliente
+  pagoModel.value.numero_documento = pago.numero_documento
+  pagoModel.value.numero_operacion = pago.numero_operacion
+  pagoModel.value.fecha_operacion = pago.fecha_operacion
+  pagoModel.value.monto = pago.monto
+  open.value = true
+}
+const eventSave = async() => {
+  if (pagoModel.value.id !== 0)
+    pagoModel.value.is_conciliado = true
+  else
+    pagoModel.value.is_conciliado = false
+  await pagoStore.save_pago(pagoModel.value)
 
+  createToast('Pago Conciliado', {
+    type: 'success',
+    timeout: 1000,
+  })
+
+  pagoStore.set_pagos('')
+  eventCancel()
+}
 </script>
 <template>
   <div class="bg-white shadow">
@@ -68,12 +128,6 @@ watch(buscar, () => {
                 placeholder="Buscar pago"
               >
             </div>
-            <button
-              type="button"
-              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Nuevo pago
-            </button>
           </div>
         </div>
       </div>
@@ -149,7 +203,7 @@ watch(buscar, () => {
               <tr v-for="concepto in pagoStore.pagos" :key="concepto.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
-                    <a href="#" class="group inline-flex space-x-2 truncate text-sm">
+                    <a class="group inline-flex space-x-2 truncate text-sm cursor-pointer" @click="eventEdit(concepto.id)">
                       <CashIcon
                         class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
@@ -184,6 +238,95 @@ watch(buscar, () => {
       </div>
     </div>
   </section>
+  <!--modal-->
+  <TransitionRoot as="template" :show="open">
+    <Dialog as="div" class="fixed z-10 inset-0 overflow-y-auto" @close="open = false">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <TransitionChild
+          as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
+          leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0"
+        >
+          <DialogOverlay class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        </TransitionChild>
+
+        <!-- This element is to trick the browser into centering the modal contents. -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <TransitionChild
+          as="template" enter="ease-out duration-300"
+          enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200"
+          leave-from="opacity-100 translate-y-0 sm:scale-100"
+          leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+          <div
+            class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          >
+            <!-- contenido-->
+            <form action="#" method="POST">
+              <div class="shadow sm:rounded-md sm:overflow-hidden">
+                <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
+                  <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                      Conciliar Pago
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                      POSTGRADO-UNAP
+                    </p>
+                  </div>
+
+                  <div class="grid grid-cols-6 gap-6">
+                    <div class="col-span-6">
+                      <label for="concepto" class="block text-sm font-medium text-gray-700">Nombre Cliente</label>
+                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                        {{ pagoModel.nombre_cliente }}
+                      </label>
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Documento</label>
+                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                        {{ pagoModel.numero_documento }}
+                      </label>
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Operación</label>
+                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                        {{ pagoModel.numero_operacion }}
+                      </label>
+                    </div>
+                    <div class="col-span-6">
+                      <label for="concepto" class="block text-sm font-medium text-gray-700">Numero de Conciliación</label>
+                      <input
+                        id="concepto" v-model="pagoModel.numero_conciliacion" type="text" name="concepto"
+                        autocomplete="of"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-info text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:ml-3 sm:w-auto sm:text-sm"
+                @click="eventSave()"
+              >
+                Guardar
+              </button>
+              <button
+                ref="cancelButtonRef" type="button"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                @click="eventCancel()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </TransitionChild>
+      </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <route lang="yaml">

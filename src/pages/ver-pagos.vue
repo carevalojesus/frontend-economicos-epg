@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// import { createToast } from 'mosha-vue-toastify'
+import { createToast } from 'mosha-vue-toastify'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
 import { CashIcon } from '@heroicons/vue/solid'
 import {
@@ -23,6 +23,7 @@ const pagoModel = ref<PagoModel>({
   is_active: true,
   concepto: 0,
   is_conciliado: false,
+  concepto_nombre: '',
 })
 const estadoEstilo = {
   activo: 'bg-green-100 text-green-800',
@@ -37,6 +38,44 @@ onMounted(() => {
   pagoStore.set_pagos('')
   conceptoStore.set_conceptos('')
 })
+const eventCancel = async() => {
+  pagoModel.value = ({
+    id: 0,
+    nombre_cliente: '',
+    numero_documento: '',
+    numero_operacion: '',
+    fecha_operacion: '',
+    monto: 0,
+    is_active: true,
+    concepto: 0,
+    is_conciliado: false,
+    concepto_nombre: '',
+  })
+  open.value = false
+}
+const eventEdit = async(id: number) => {
+  const pago = await pagoStore.set_concepto_by_id(id)
+  pagoModel.value.id = pago.id
+  pagoModel.value.nombre_cliente = pago.nombre_cliente
+  pagoModel.value.numero_documento = pago.numero_documento
+  pagoModel.value.numero_operacion = pago.numero_operacion
+  pagoModel.value.fecha_operacion = pago.fecha_operacion
+  pagoModel.value.monto = pago.monto
+  conceptoSelected.value = conceptoStore.find_conceptos_by_id(pago.concepto) || {} as ConceptoModel
+  // programaSelected.value = programaStore.find_programa_by_id(concepto.programa) || {} as ProgramaModel
+  open.value = true
+}
+const eventsave = async() => {
+  // await pagoStore.save_pago(pagoModel.value)
+
+  createToast('pago guardado', {
+    type: 'success',
+    timeout: 1000,
+  })
+
+  pagoStore.set_pagos('')
+  eventCancel()
+}
 </script>
 <template>
   <div class="bg-white shadow">
@@ -122,7 +161,7 @@ onMounted(() => {
               <tr v-for="pago in pagoStore.pagos" :key="pago.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
-                    <a href="#" class="group inline-flex space-x-2 truncate text-sm">
+                    <a class="group inline-flex space-x-2 truncate text-sm cursor-pointer" @click="eventEdit(pago.id)">
                       <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
                         {{ pago.concepto_nombre }}
@@ -138,10 +177,10 @@ onMounted(() => {
                   <span class="text-gray-900 font-medium">{{ pago.monto }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span v-if="pago.is_conciliado" :class="[estadoEstilo['inactivo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                  <span v-if="pago.is_conciliado" :class="[estadoEstilo['activo' ], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
                     CONCILIADO
                   </span>
-                  <span v-else :class="[estadoEstilo['activo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                  <span v-else :class="[estadoEstilo['inactivo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
                     INGRESADO
                   </span>
                 </td>
@@ -275,14 +314,16 @@ onMounted(() => {
                     <div class="col-span-6">
                       <label for="concepto" class="block text-sm font-medium text-gray-700">Nombre Cliente</label>
                       <input
-                        id="concepto" type="text" name="concepto" autocomplete="of"
+                        id="concepto" v-model="pagoModel.nombre_cliente" type="text" name="concepto"
+                        autocomplete="of"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Documento</label>
                       <input
-                        id="codigo-pago" type="text" name="codigo-pago"
+                        id="codigo-pago" v-model="pagoModel.numero_documento" type="text"
+                        name="codigo-pago"
                         autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
@@ -290,7 +331,8 @@ onMounted(() => {
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Operación</label>
                       <input
-                        id="codigo-pago" type="text" name="codigo-pago"
+                        id="codigo-pago" v-model="pagoModel.numero_operacion" type="text"
+                        name="codigo-pago"
                         autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
@@ -298,7 +340,8 @@ onMounted(() => {
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Fecha</label>
                       <input
-                        id="codigo-pago" type="date" name="codigo-pago"
+                        id="codigo-pago" v-model="pagoModel.fecha_operacion" type="date"
+                        name="codigo-pago"
                         autocomplete="off"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
@@ -306,7 +349,8 @@ onMounted(() => {
                     <div class="col-span-6 sm:col-span-3">
                       <label for="costo" class="block text-sm font-medium text-gray-700">Importe</label>
                       <input
-                        id="costo" type="number" name="costo" autocomplete="of"
+                        id="costo" v-model="pagoModel.monto" type="number" name="costo"
+                        autocomplete="of"
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
                       >
                     </div>
@@ -325,6 +369,7 @@ onMounted(() => {
               <button
                 ref="cancelButtonRef" type="button"
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                @click="eventCancel()"
               >
                 Cancelar
               </button>

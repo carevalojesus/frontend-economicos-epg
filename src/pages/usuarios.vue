@@ -167,27 +167,148 @@ const open = ref(false)
   <TransitionRoot as="template" :show="open">
     <Dialog as="div" class="fixed z-10 inset-0 overflow-y-auto" @close="open = false">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+        <TransitionChild
+          as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
+          leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0"
+        >
           <DialogOverlay class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </TransitionChild>
 
         <!-- This element is to trick the browser into centering the modal contents. -->
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-          <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
-            <div>
-              <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <CheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
-              </div>
-              <div class="mt-3 text-center sm:mt-5">
-                <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900"> Payment successful </DialogTitle>
-                <div class="mt-2">
-                  <p class="text-sm text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur amet labore.</p>
+        <TransitionChild
+          as="template" enter="ease-out duration-300"
+          enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200"
+          leave-from="opacity-100 translate-y-0 sm:scale-100"
+          leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+          <div
+            class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          >
+            <!-- contenido-->
+            <form action="#" method="POST">
+              <div class="shadow sm:rounded-md sm:overflow-hidden">
+                <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
+                  <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                      <span v-if="true">Nuevo</span> <span v-else>Modificar</span> Usuario
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                      POSTGRADO-UNAP
+                    </p>
+                  </div>
+
+                  <div class="grid grid-cols-6 gap-6">
+                    <!-- <Combobox  as="div" class="col-span-6">
+                      <ComboboxLabel class="block text-sm font-medium text-gray-700">
+                        Asignar Concepto
+                      </ComboboxLabel>
+                      <div class="relative mt-1">
+                        <ComboboxInput
+                          class="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-info focus:outline-none focus:ring-1 focus:ring-info sm:text-sm"
+                          autocomplete="off" :display-value="(concepto) => concepto.nombre || ''"
+                          @change="query = $event.target.value"
+                        />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+                        >
+                          <SelectorIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+
+                        <ComboboxOptions
+                          v-if="conceptoStore.filter_conceptos_by_nombre(query).length > 0"
+                          class="absolute z-10 mt-1 max-h-28 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                        >
+                          <ComboboxOption
+                            v-for="concepto in conceptoStore.filter_conceptos_by_nombre(query)"
+                            :key="concepto.id" v-slot="{ active, selected }" :value="concepto" as="template"
+                          >
+                            <li
+                              :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-info text-white' : 'text-gray-900']"
+                            >
+                              <div class="flex">
+                                <span :class="['truncate', selected && 'font-semibold']">{{ concepto.nombre }}</span>
+                                <span
+                                  :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']"
+                                >{{
+                                  concepto.codigo
+                                }}</span>
+                              </div>
+
+                              <span
+                                v-if="selected"
+                                :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-info']"
+                              >
+                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                              </span>
+                            </li>
+                          </ComboboxOption>
+                        </ComboboxOptions>
+                      </div>
+                    </Combobox> -->
+                    <div class="col-span-6">
+                      <label for="concepto" class="block text-sm font-medium text-gray-700">Nombre Cliente</label>
+                      <input
+                        id="concepto" type="text" name="concepto"
+                        autocomplete="of"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Documento</label>
+                      <input
+                        id="codigo-pago" type="text"
+                        name="codigo-pago"
+                        autocomplete="off"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Operación</label>
+                      <input
+                        id="codigo-pago" type="text"
+                        name="codigo-pago"
+                        autocomplete="off"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Fecha</label>
+                      <input
+                        id="codigo-pago" type="date"
+                        name="codigo-pago"
+                        autocomplete="off"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="costo" class="block text-sm font-medium text-gray-700">Importe</label>
+                      <input
+                        id="costo" type="number" name="costo"
+                        autocomplete="of"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="mt-5 sm:mt-6">
-              <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm" @click="open = false">Go back to dashboard</button>
+            </form>
+
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-info text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:ml-3 sm:w-auto sm:text-sm"
+              >
+                Guardar
+              </button>
+              <button
+                ref="cancelButtonRef" type="button"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                @click="eventCancel()"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </TransitionChild>

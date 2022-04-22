@@ -31,5 +31,14 @@ export const UsePagoStore = defineStore('pago', {
         return null
       }
     },
+    async set_concepto_by_id(id: number) {
+      try {
+        const { data } = await axios.get(`economicos/pagos/${id}/`)
+        return data
+      }
+      catch (e) {
+        return null
+      }
+    },
   },
 })

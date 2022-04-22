@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
-import { CashIcon } from '@heroicons/vue/solid'
+import { CashIcon, UserIcon } from '@heroicons/vue/solid'
 import {
   Combobox, ComboboxButton, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions, Dialog,
   DialogOverlay, TransitionChild, TransitionRoot,
@@ -13,6 +13,7 @@ const conceptos = [
     codigo: '531',
     estado: 'activo',
     moneda: 'S/',
+    persona: 'Juan Perez',
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ const conceptos = [
     codigo: '531',
     estado: 'activo',
     moneda: 'S/',
+    persona: 'Juan Perez',
   },
   {
     id: 3,
@@ -29,6 +31,7 @@ const conceptos = [
     codigo: '531',
     estado: 'activo',
     moneda: 'S/',
+    persona: 'Juan Perez',
   },
 ]
 const estadoEstilo = {
@@ -62,7 +65,7 @@ const open = true
                 <div class="flex items-center">
                   <ChevronRightIcon class="flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
                   <router-link to="conceptos" class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                    Importar pagos
+                    Asignar pagos
                   </router-link>
                 </div>
               </li>
@@ -72,39 +75,44 @@ const open = true
         <div class="mt-2 md:flex md:items-center md:justify-between">
           <div class="flex-1 min-w-0">
             <h2 class="text-2xl font-bold leading-7 text-primary-700 sm:text-3xl sm:truncate">
-              Importar pagos
+              Asignar pagos
             </h2>
           </div>
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+            <div>
+              <label for="buscar" class="sr-only">Buscar</label>
+              <input id="buscar" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar pago">
+            </div>
             <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Procesar
+              Nuevo pago
             </button>
           </div>
         </div>
       </div>
+      <div class=" md:flex md:items-center md:justify-between lg:border-t lg:border-gray-200" />
     </div>
   </div>
   <!-- contenido -->
   <h2 class="max-w-6xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-900 sm:px-6 lg:px-8">
-    Subir archivo
+    Recent activity
   </h2>
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
     <div class="sm:col-span-6">
       <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
         <div class="space-y-1 text-center">
           <svg
-            class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2"
+              class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2"
           >
             <path
-              stroke-linecap="round" stroke-linejoin="round"
-              d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
+                stroke-linecap="round" stroke-linejoin="round"
+                d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"
             />
           </svg>
           <div class="flex text-sm text-gray-600">
             <label
-              for="file-upload"
-              class="relative cursor-pointer bg-white rounded-md font-medium text-info hover:text-cyan-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-info"
+                for="file-upload"
+                class="relative cursor-pointer bg-white rounded-md font-medium text-info hover:text-cyan-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-info"
             >
               <span>Cargar un archivo</span>
               <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="Readtxt">
@@ -120,7 +128,6 @@ const open = true
       </div>
     </div>
   </div>
-
   <div class="hidden sm:block">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col mt-2">
@@ -131,6 +138,9 @@ const open = true
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   CONCEPTO
                 </th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PERSONA
+                </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   IMPORTE
                 </th>
@@ -138,7 +148,7 @@ const open = true
                   ESTADO
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CODIGO
+                  FECHA
                 </th>
               </tr>
             </thead>
@@ -153,6 +163,9 @@ const open = true
                       </p>
                     </a>
                   </div>
+                </td>
+                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                 {{ concepto.persona }}
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
                   {{ concepto.moneda }}

@@ -10,7 +10,8 @@ import type { ConceptoModel, ProgramaModel } from '~/interfaces/models'
 import { UseConceptoStore } from '~/store/concepto'
 import { UseProgramaStore } from '~/store/programa'
 
-const statusStyles = {
+
+const estadoEstilo = {
   activo: 'bg-green-100 text-green-800',
   processing: 'bg-yellow-100 text-yellow-800',
   failed: 'bg-red-100 text-red-800',
@@ -115,7 +116,7 @@ const eventEdit = async(id: number) => {
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
             <div>
               <label for="buscar" class="sr-only">Buscar</label>
-              <input id="buscar" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar concepto">
+              <input id="buscar" v-model="conceptoStr" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar concepto" @input="conceptoStore.set_conceptos(conceptoStr)">
             </div>
             <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" @click="open = true">
               Nuevo concepto
@@ -153,24 +154,27 @@ const eventEdit = async(id: number) => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="concepto in conceptos" :key="concepto.id" class="bg-white">
+              <tr v-for="(concepto) in conceptoStore.conceptos" :key="concepto.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
-                    <a href="#" class="group inline-flex space-x-2 truncate text-sm">
+                    <a href="#" class="group inline-flex space-x-2 truncate text-sm" @click="eventEdit(concepto.id)">
                       <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
-                        {{ concepto.name }}
+                        {{ concepto.nombre }}
                       </p>
                     </a>
                   </div>
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                  {{ concepto.moneda }}
-                  <span class="text-gray-900 font-medium">{{ concepto.monto }} </span>
+                  S/
+                  <span class="text-gray-900 font-medium">{{ concepto.precio }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span :class="[estadoEstilo[concepto.estado], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
-                    {{ concepto.estado }}
+                  <span v-if="concepto.is_active" :class="[estadoEstilo['activo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                    ACTIVO
+                  </span>
+                  <span v-else :class="[estadoEstilo['failed'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                    INACTIVO
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">

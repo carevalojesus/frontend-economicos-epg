@@ -15,7 +15,7 @@ export const UsePagoStore = defineStore('pago', {
         const params = {
           search,
         }
-        const { data } = await axios.get('/economicos/pagos/', { params })
+        const { data } = await axios.get('/economicos/pagos-filter/', { params })
         this.pagos = data
       }
       catch (e) {

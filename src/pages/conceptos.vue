@@ -10,7 +10,6 @@ import type { ConceptoModel, ProgramaModel } from '~/interfaces/models'
 import { UseConceptoStore } from '~/store/concepto'
 import { UseProgramaStore } from '~/store/programa'
 
-
 const estadoEstilo = {
   activo: 'bg-green-100 text-green-800',
   processing: 'bg-yellow-100 text-yellow-800',
@@ -153,7 +152,7 @@ const eventEdit = async(id: number) => {
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody v-if="conceptoStore.conceptos.length > 0" class="bg-white divide-y divide-gray-200">
               <tr v-for="(concepto) in conceptoStore.conceptos" :key="concepto.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
@@ -179,6 +178,15 @@ const eventEdit = async(id: number) => {
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
                   <time>{{ concepto.codigo }}</time>
+                </td>
+              </tr>
+            </tbody>
+            <tbody v-else class="bg-white divide-y divide-gray-200">
+              <tr class="bg-white">
+                <td class="max-w-0 w-full  whitespace-nowrap text-sm text-gray-900" colspan="4">
+                  <div class="flex item-center text-center justify-center w-full px-6 py-4 text-gray-500">
+                    No se encontraron Datos
+                  </div>
                 </td>
               </tr>
             </tbody>

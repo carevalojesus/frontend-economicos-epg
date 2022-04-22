@@ -14,6 +14,7 @@ specifiers:
   axios: ^0.26.1
   eslint: ^8.13.0
   jsdom: ^19.0.0
+  mosha-vue-toastify: ^1.0.23
   pinia: ^2.0.13
   pnpm: ^6.32.6
   postcss: ^8.4.12
@@ -34,6 +35,7 @@ dependencies:
   '@heroicons/vue': 1.0.6_vue@3.2.31
   '@vueuse/core': 8.2.5_vue@3.2.31
   axios: 0.26.1
+  mosha-vue-toastify: 1.0.23
   pinia: 2.0.13_typescript@4.6.3+vue@3.2.31
   vue: 3.2.31
   vue-router: 4.0.14_vue@3.2.31
@@ -2608,6 +2610,10 @@ packages:
   /minimist/1.2.5:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
+
+  /mosha-vue-toastify/1.0.23:
+    resolution: {integrity: sha512-K9fij3e3H+E/Lj82ISrgmyKrtM5RNmtZC/KG/KH47+oZGmzAkN/Zuz39kBdT/Mp8OxaHuIWQntEUMP+HdmK1xA==}
+    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}

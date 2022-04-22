@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createToast } from 'mosha-vue-toastify'
 import { useUserStore } from '~/store/user'
 const userStore = useUserStore()
 const router = useRouter()
@@ -7,9 +8,26 @@ const password = ref('')
 
 const login = async() => {
   const result = await userStore.login(email.value, password.value)
-  if (result === 200)
+  if (result?.status === 200) {
+    createToast('Usuario logueado correctamente', {
+      type: 'success',
+      position: 'top-right',
+      timeout: 3000,
+    })
     router.push('/home')
+    return
+  }
+  createToast(`${result?.data}`, {
+    type: 'danger',
+    position: 'top-right',
+    timeout: 3000,
+  })
 }
+
+onMounted(() => {
+  localStorage.removeItem('userpgtoken')
+})
+
 </script>
 
 <template>

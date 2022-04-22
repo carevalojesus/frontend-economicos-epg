@@ -61,10 +61,10 @@ export const useUserStore = defineStore('user', {
         await this.save_to_local_storage(token)
         this.user = user
         this.groups = groups
-        return status
+        return { status, data }
       }
       catch (e) {
-        return null
+        return { status: e.response.status, data: e.response.data }
       }
     },
 

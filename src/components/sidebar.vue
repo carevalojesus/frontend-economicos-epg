@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CashIcon, CogIcon, DocumentReportIcon, HomeIcon, QuestionMarkCircleIcon, ShieldCheckIcon, TemplateIcon, ViewGridAddIcon } from '@heroicons/vue/outline'
+import { CashIcon, CogIcon, DocumentReportIcon, HomeIcon, QuestionMarkCircleIcon, ShieldCheckIcon, ViewGridAddIcon } from '@heroicons/vue/outline'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 const navigation = [

@@ -1,42 +1,96 @@
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
-import { CashIcon } from '@heroicons/vue/solid'
-import {
-  Combobox, ComboboxButton, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions, Dialog,
-  DialogOverlay, TransitionChild, TransitionRoot,
-} from '@headlessui/vue'
-const conceptos = [
-  {
-    id: 1,
-    name: 'TRASLADO EXTERNO-POST GR 41',
-    monto: '500',
-    codigo: '531',
-    estado: 'activo',
-    moneda: 'S/',
-  },
-  {
-    id: 2,
-    name: 'TRASLADO EXTERNO-POST GR 41',
-    monto: '500',
-    codigo: '531',
-    estado: 'activo',
-    moneda: 'S/',
-  },
-  {
-    id: 3,
-    name: 'TRASLADO EXTERNO-POST GR 41',
-    monto: '500',
-    codigo: '531',
-    estado: 'activo',
-    moneda: 'S/',
-  },
-]
-const estadoEstilo = {
-  activo: 'bg-green-100 text-green-800',
-  inactivo: 'bg-yellow-100 text-yellow-800',
-  obsoleto: 'bg-gray-100 text-gray-800',
+import { createToast } from 'mosha-vue-toastify'
+import type { PagoModel } from '~/interfaces/models'
+import { UseConceptoStore } from '~/store/concepto'
+import { UsePagoStore } from '~/store/pago'
+const conceptoStore = UseConceptoStore()
+const pagoStore = UsePagoStore()
+const pagosData = ref<PagoModel[]>([])
+
+const Readtxt = async(e: Event) => {
+  try {
+    const fun = () => {
+      return new Promise((resolve) => {
+        const input = e.target as HTMLInputElement
+        const reader = new FileReader()
+        reader.onload = function() {
+          const text = reader.result
+          resolve(text)
+        }
+        if (input.files)
+          reader.readAsText(input.files[0])
+      })
+    }
+
+    await fun().then((res) => {
+      const pagos = (res as string).split('\n')
+      pagos.forEach((pago: string) => {
+        const codigo_concepto = pago.slice(35, 43)
+        const condicion = pago.slice(112, 113)
+        const concepto = conceptoStore.get_concepto_by_codigo(codigo_concepto)
+        if (concepto && Number(condicion) === 2) {
+          const pagoModel = {} as PagoModel
+          let numero_documeno = pago.slice(47, 62)
+          numero_documeno = numero_documeno.trim()
+          numero_documeno = numero_documeno.slice(7, 15)
+          let nombre_cliente = pago.slice(121, 156)
+          nombre_cliente = nombre_cliente.trim()
+          let fecha_operacion = pago.slice(79, 87)
+          const anio = fecha_operacion.slice(0, 4)
+          const mes = fecha_operacion.slice(4, 6)
+          const dia = fecha_operacion.slice(6, 8)
+          fecha_operacion = `${anio}-${mes}-${dia}`
+          const numero_operacion = pago.slice(18, 25)
+          let monto_str = pago.slice(62, 77)
+          let decimales = ''
+          decimales = monto_str.slice(13, 15)[0]
+          monto_str = monto_str.slice(1, 13)
+          monto_str = `${monto_str}.${decimales}`
+          const monto = parseFloat(monto_str)
+          //
+          pagoModel.nombre_cliente = nombre_cliente
+          pagoModel.numero_documento = numero_documeno
+          pagoModel.numero_operacion = numero_operacion
+          pagoModel.fecha_operacion = fecha_operacion
+          pagoModel.monto = monto
+          pagoModel.concepto = concepto.id
+          pagoModel.is_active = true
+          pagosData.value.push(pagoModel)
+        }
+      })
+    })
+  }
+  catch (error) {
+    // eslint-disable-next-line no-alert
+    alert(error)
+  }
 }
-const open = true
+
+const SubirPagos = async() => {
+  const response = await pagoStore.save_pagos(pagosData.value)
+  if (!response) {
+    createToast('Error al subir pagos', {
+      type: 'danger',
+      timeout: 5000,
+      hideProgressBar: true,
+    })
+    return
+  }
+  createToast(`Se Procesaron : ${pagosData.value.length} Nuevos pagos`, {
+    type: 'success',
+    timeout: 3000,
+    hideProgressBar: true,
+  })
+  pagosData.value = []
+  // file-upload
+  document.getElementById('file-upload').value = ''
+}
+
+onMounted(() => {
+  conceptoStore.set_conceptos('')
+})
+
 </script>
 <template>
   <div class="bg-white shadow">
@@ -76,7 +130,7 @@ const open = true
             </h2>
           </div>
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
-            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" @click="SubirPagos()">
               Procesar
             </button>
           </div>
@@ -129,42 +183,48 @@ const open = true
             <thead>
               <tr>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CONCEPTO
+                  PERSONA
                 </th>
-                <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  DOCUMENTO
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  OPERACIÓN
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   IMPORTE
                 </th>
-                <th class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block">
-                  ESTADO
-                </th>
-                <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CODIGO
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  FECHA
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="concepto in conceptos" :key="concepto.id" class="bg-white">
-                <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div class="flex">
-                    <a href="#" class="group inline-flex space-x-2 truncate text-sm">
-                      <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
-                      <p class="text-gray-500 truncate group-hover:text-gray-900">
-                        {{ concepto.name }}
-                      </p>
-                    </a>
+            <tbody v-if="pagosData.length > 0" class="bg-white divide-y divide-gray-200">
+              <tr v-for="(pago, i) in pagosData" :key="i" class="bg-white">
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  {{ pago.nombre_cliente }}
+                </td>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  {{ pago.numero_documento }}
+                </td>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  {{ pago.numero_operacion }}
+                </td>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  S/
+                  <span class="text-gray-900 font-medium">{{ pago.monto }} </span>
+                </td>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  <time>{{ pago.fecha_operacion }}</time>
+                </td>
+              </tr>
+            </tbody>
+            <tbody v-else class="bg-white divide-y divide-gray-200">
+              <tr class="bg-white">
+                <td class="max-w-0 w-full  whitespace-nowrap text-sm text-gray-900" colspan="6">
+                  <div class="flex item-center text-center justify-center w-full px-6 py-4 text-gray-500">
+                    No se encontraron registros
                   </div>
-                </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                  {{ concepto.moneda }}
-                  <span class="text-gray-900 font-medium">{{ concepto.monto }} </span>
-                </td>
-                <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span :class="[estadoEstilo[concepto.estado], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
-                    {{ concepto.estado }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                  <time>{{ concepto.codigo }}</time>
                 </td>
               </tr>
             </tbody>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   CalendarIcon,
+  CashIcon,
   CheckCircleIcon,
   OfficeBuildingIcon,
   RefreshIcon,

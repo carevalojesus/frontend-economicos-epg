@@ -300,6 +300,18 @@ const eventSave = async() => {
                         {{ pagoModel.numero_operacion }}
                       </label>
                     </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">MONTO</label>
+                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                        {{ pagoModel.monto }}
+                      </label>
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="codigo-pago" class="block text-sm font-medium text-gray-700">FECHA</label>
+                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                        {{ pagoModel.fecha_operacion }}
+                      </label>
+                    </div>
                     <div class="col-span-6">
                       <label for="concepto" class="block text-sm font-medium text-gray-700">Numero de
                         Conciliación</label>

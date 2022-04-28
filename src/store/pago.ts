@@ -66,5 +66,15 @@ export const UsePagoStore = defineStore('pago', {
         return null
       }
     },
+
+    async conciliar_pagos(pagos: PagoModel[]) {
+      try {
+        const response = await axios.post('economicos/conciliar_pagos/', pagos)
+        return response
+      }
+      catch (e) {
+        return null
+      }
+    },
   },
 })

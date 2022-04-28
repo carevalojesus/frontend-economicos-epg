@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogOverlay, TransitionChild, TransitionRoot,
 } from '@headlessui/vue'
+import * as XLSX from 'xlsx/xlsx.mjs'
 import { UsePagoStore } from '~/store/pago'
 import type { PagoModel } from '~/interfaces/models'
 
@@ -25,6 +26,7 @@ const pagoModel = ref<PagoModel>({
   is_conciliado: false,
   numero_conciliacion: '',
 })
+const pagosList = ref<PagoModel[]>([])
 
 const estadoEstilo = (isConciliado: boolean) => {
   if (isConciliado)
@@ -35,7 +37,7 @@ const estadoEstilo = (isConciliado: boolean) => {
 onMounted(() => {
   pagoStore.set_pagos_sin_conciliar(buscar.value)
 })
-// watch in buscar
+
 watch(buscar, () => {
   pagoStore.set_pagos_sin_conciliar(buscar.value)
 })
@@ -80,6 +82,68 @@ const eventSave = async() => {
 
   pagoStore.set_pagos('')
   eventCancel()
+}
+/** extraer datos de un archivo .xlsx y subirlo a un array */
+const cargarExcel = async(e: any) => {
+  const file = e.target.files[0]
+  if (!file)
+    return
+
+  const reader = new FileReader()
+  const name_file = file.name
+
+  document.getElementById('lblFileName').innerHTML = name_file
+
+  reader.onload = async() => {
+    const data = new Uint8Array(reader.result as ArrayBuffer)
+    const workbook = XLSX.read(data, { type: 'array' })
+    const sheet = workbook.Sheets[workbook.SheetNames[0]]
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 1 })
+    if (rows.length === 0) {
+      createToast('No hay datos en el archivo', {
+        type: 'error',
+        timeout: 1000,
+      })
+      return
+    }
+
+    pagosList.value = rows.map((row) => {
+      return {
+        numero_documento: row[0],
+        nombre_cliente: row[1],
+        numero_operacion: row[2],
+        numero_conciliacion: row[3],
+        fecha_operacion: row[4],
+      }
+    }) as PagoModel[]
+
+    createToast(`Se cargaron ${pagosList.value.length} datos`, {
+      type: 'success',
+      timeout: 1000,
+    })
+  }
+  reader.readAsArrayBuffer(file)
+}
+const eventImport = async() => {
+  const response = await pagoStore.conciliar_pagos(pagosList.value)
+  if (!response) {
+    createToast('Error al conciliar los pagos', {
+      type: 'danger',
+      timeout: 5000,
+      hideProgressBar: true,
+    })
+    return
+  }
+  createToast(`Se Conciliaron : ${pagosList.value.length} pagos`, {
+    type: 'success',
+    timeout: 3000,
+    hideProgressBar: true,
+  })
+  pagosList.value = []
+  document.getElementById('lblFileName').innerHTML = 'Archivo Excel'
+  document.getElementById('file-upload').value = ''
+  buscar.value = '...'
+  buscar.value = ''
 }
 </script>
 <template>
@@ -129,6 +193,15 @@ const eventSave = async() => {
               >
             </div>
           </div>
+          <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+            <button
+              type="button"
+              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click="eventImport()"
+            >
+              Procesar
+            </button>
+          </div>
         </div>
       </div>
       <div class=" md:flex md:items-center md:justify-between lg:border-t lg:border-gray-200" />
@@ -137,7 +210,7 @@ const eventSave = async() => {
   <!-- contenido -->
   <section>
     <h2 class="max-w-6xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-900 sm:px-6 lg:px-8">
-      Recent activity
+      CONCILIANCIÓN DE PAGOS
     </h2>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
       <div class="sm:col-span-6">
@@ -158,15 +231,25 @@ const eventSave = async() => {
                 class="relative cursor-pointer bg-white rounded-md font-medium text-info hover:text-cyan-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-info"
               >
                 <span>Cargar un archivo</span>
-                <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="cargarExcel">
               </label>
               <p class="pl-1">
                 o arrastrar y soltar
               </p>
             </div>
-            <p class="text-xs text-gray-500">
-              TXT, BATCH up to 10MB
+            <p id="lblFileName" class="text-xs text-gray-500">
+              ARCHIVO EXCEL
             </p>
+
+            <div v-if="pagosList.length > 0" class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+              <button
+                type="button"
+                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                @click="eventImport()"
+              >
+                Procesar Ahora
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -186,7 +269,7 @@ const eventSave = async() => {
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   PERSONA
                 </th>
-                <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   IMPORTE
                 </th>
                 <th
@@ -217,10 +300,10 @@ const eventSave = async() => {
                     </a>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 text-left whitespace-nowrap text-sm text-gray-500">
                   {{ concepto.nombre_cliente }}
                 </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 text-left whitespace-nowrap text-sm text-gray-500">
                   S/
                   <span class="text-gray-900 font-medium">{{ concepto.monto }} </span>
                 </td>
@@ -302,18 +385,22 @@ const eventSave = async() => {
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">MONTO</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.monto }}
                       </label>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">FECHA</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.fecha_operacion }}
                       </label>
                     </div>
                     <div class="col-span-6">
-                      <label for="concepto" class="block text-sm font-medium text-gray-700">Numero de
+                      <label for="concepto" class="block text-sm font-medium text-gray-700">Codigo de
                         Conciliación</label>
                       <input
                         id="concepto" v-model="pagoModel.numero_conciliacion" type="text" name="concepto"

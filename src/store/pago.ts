@@ -58,7 +58,9 @@ export const UsePagoStore = defineStore('pago', {
         if (pago.id)
           response = await axios.put(`economicos/pagos/${pago.id}/`, pago)
         else
-          response = await axios.post('/economicos/pagos/', pago)
+          response = await axios.post('economicos/pagos/', pago)
+
+        console.log('response', response)
         return response
       }
       catch (e) {

@@ -60,7 +60,6 @@ export const UsePagoStore = defineStore('pago', {
         else
           response = await axios.post('economicos/pagos/', pago)
 
-        console.log('response', response)
         return response
       }
       catch (e) {

@@ -7,11 +7,30 @@ import {
   RefreshIcon,
   ScaleIcon,
 } from '@heroicons/vue/outline'
-const cards = [
-  { name: 'Total ingresos', href: 'ver-pagos', icon: ScaleIcon, amount: '$30,659.45' },
-  { name: 'Pendiente asignar', href: 'asignar-pagos', icon: RefreshIcon, amount: '-$19,500.00' },
-  { name: 'Ingresos del mes', href: 'ver-pagos', icon: CalendarIcon, amount: '$20,000' },
-]
+import { UsePagoStore } from '~/store/pago'
+const pagoStore = UsePagoStore()
+const pagos_del_dia_list = ref<Pago[]>([])
+
+const estadoEstilo = (isConciliado: boolean) => {
+  if (isConciliado)
+    return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-green-100 text-green-800'
+  return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-yellow-100 text-yellow-800'
+}
+
+const cards = ref([
+  { name: 'Ingresos Anuales', href: 'ver-pagos', icon: ScaleIcon, amount: '0.00' },
+  { name: 'Ingresos mensuales', href: 'ver-pagos', icon: CalendarIcon, amount: '0.00' },
+  { name: 'Pendiente Conciliar', href: 'conciliar-pagos', icon: RefreshIcon, amount: '0.00' },
+])
+
+onMounted(async() => {
+  const result = await pagoStore.get_dashboard()
+  cards.value[0].amount = `S/ ${result.total_pagos_anio}`
+  cards.value[1].amount = `S/ ${result.total_pagos_mes}`
+  cards.value[2].amount = result.cantidad_pagos_por_conciliar
+  pagos_del_dia_list.value = result.pagos_del_dia_list
+})
+
 </script>
 <template>
   <div class="bg-white shadow">
@@ -25,7 +44,11 @@ const cards = [
             </span>
             <div>
               <div class="flex items-center">
-                <img class="h-16 w-16 rounded-full sm:hidden" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80" alt="">
+                <img
+                  class="h-16 w-16 rounded-full sm:hidden"
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80"
+                  alt=""
+                >
                 <h1 class="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
                   Buenos días, Hernán Pizarro
                 </h1>
@@ -50,12 +73,18 @@ const cards = [
           </div>
         </div>
         <div class="mt-6 flex space-x-3 md:mt-0 md:ml-4">
-          <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+          >
             <router-link to="ver-pagos">
               Ver pagos
             </router-link>
           </button>
-          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          >
             <router-link to="asignar-pagos">
               Asignar Pagos
             </router-link>
@@ -102,7 +131,7 @@ const cards = [
   </div>
 
   <h2 class="max-w-6xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-900 sm:px-6 lg:px-8">
-    Pagos del día
+    Top <b>{{ pagos_del_dia_list.length }}</b> pagos del día
   </h2>
 
   <div class="hidden sm:block">
@@ -113,70 +142,66 @@ const cards = [
             <thead>
               <tr>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Transaction
+                  CONCEPTO
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PERSONA
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                  IMPORTE
                 </th>
-                <th class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block">
-                  Status
+                <th
+                  class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
+                >
+                  ESTADO
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
+                  FECHA
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="transaction in transactions" :key="transaction.id" class="bg-white">
+            <tbody v-if="pagos_del_dia_list.length > 0" class="bg-white divide-y divide-gray-200">
+              <tr v-for="pago in pagos_del_dia_list" :key="pago.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
-                    <a :href="transaction.href" class="group inline-flex space-x-2 truncate text-sm">
-                      <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                    <a class="group inline-flex space-x-2 truncate text-sm cursor-pointer">
+                      <CashIcon
+                        class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
-                        {{ transaction.name }}
+                        {{ pago.concepto_nombre }}
                       </p>
                     </a>
                   </div>
                 </td>
                 <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                  <span class="text-gray-900 font-medium">{{ transaction.amount }} </span>
-                  {{ transaction.currency }}
+                  {{ pago.nombre_cliente }}
+                </td>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  S/
+                  <span class="text-gray-900 font-medium">{{ pago.monto }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span :class="[statusStyles[transaction.status], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
-                    {{ transaction.status }}
+                  <span :class="estadoEstilo(pago.is_conciliado)">
+                    {{ pago.is_conciliado ? 'Conciliado' : 'Ingresado' }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-                  <time :datetime="transaction.datetime">{{ transaction.date }}</time>
+                <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                  <time>{{ pago.fecha_operacion }}</time>
+                </td>
+              </tr>
+            </tbody>
+            <tbody v-else class="bg-white divide-y divide-gray-200">
+              <tr class="bg-white">
+                <td class="max-w-0 w-full  whitespace-nowrap text-sm text-gray-900" colspan="5">
+                  <div class="flex item-center text-center justify-center w-full px-6 py-4 text-gray-500">
+                    No se encontraron registros
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
-          <!-- Pagination -->
-          <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
-            <div class="hidden sm:block">
-              <p class="text-sm text-gray-700">
-                Showing
-                {{ ' ' }}
-                <span class="font-medium">1</span>
-                {{ ' ' }}
-                to
-                {{ ' ' }}
-                <span class="font-medium">10</span>
-                {{ ' ' }}
-                of
-                {{ ' ' }}
-                <span class="font-medium">20</span>
-                {{ ' ' }}
-                results
-              </p>
-            </div>
-            <div class="flex-1 flex justify-between sm:justify-end">
-              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Previous </a>
-              <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Next </a>
-            </div>
-          </nav>
         </div>
       </div>
     </div>

@@ -76,5 +76,15 @@ export const UsePagoStore = defineStore('pago', {
         return null
       }
     },
+
+    async get_dashboard() {
+      try {
+        const { data } = await axios.get('/economicos/get_dashboard/')
+        return data
+      }
+      catch (e) {
+        return null
+      }
+    },
   },
 })

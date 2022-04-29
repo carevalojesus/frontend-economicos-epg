@@ -26,6 +26,7 @@ const pagoModel = ref<PagoModel>({
   is_conciliado: false,
   numero_conciliacion: '',
 })
+const pagosList = ref<PagoModel[]>([])
 
 const estadoEstilo = (isConciliado: boolean) => {
   if (isConciliado)
@@ -36,7 +37,7 @@ const estadoEstilo = (isConciliado: boolean) => {
 onMounted(() => {
   pagoStore.set_pagos_sin_conciliar(buscar.value)
 })
-// watch in buscar
+
 watch(buscar, () => {
   pagoStore.set_pagos_sin_conciliar(buscar.value)
 })
@@ -71,6 +72,7 @@ const eventSave = async() => {
     pagoModel.value.is_conciliado = true
   else
     pagoModel.value.is_conciliado = false
+
   await pagoStore.save_pago(pagoModel.value)
 
   createToast('Pago Conciliado', {
@@ -84,24 +86,38 @@ const eventSave = async() => {
 /** extraer datos de un archivo .xlsx y subirlo a un array */
 const cargarExcel = async(e: any) => {
   const file = e.target.files[0]
+  if (!file)
+    return
+
   const reader = new FileReader()
+  const name_file = file.name
+
+  document.getElementById('lblFileName').innerHTML = name_file
+
   reader.onload = async() => {
     const data = new Uint8Array(reader.result as ArrayBuffer)
     const workbook = XLSX.read(data, { type: 'array' })
     const sheet = workbook.Sheets[workbook.SheetNames[0]]
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 1 })
-    let pagos: PagoModel[] = []
-    pagos = rows.map((row) => {
-      const pagoModel = {
+    if (rows.length === 0) {
+      createToast('No hay datos en el archivo', {
+        type: 'error',
+        timeout: 1000,
+      })
+      return
+    }
+
+    pagosList.value = rows.map((row) => {
+      return {
         numero_documento: row[0],
         nombre_cliente: row[1],
         numero_operacion: row[2],
         numero_conciliacion: row[3],
         fecha_operacion: row[4],
-      } as PagoModel
-      return pagoModel
+      }
     }) as PagoModel[]
-    createToast(`Se cargaron ${pagos.length} datos`, {
+
+    createToast(`Se cargaron ${pagosList.value.length} datos`, {
       type: 'success',
       timeout: 1000,
     })
@@ -109,23 +125,25 @@ const cargarExcel = async(e: any) => {
   reader.readAsArrayBuffer(file)
 }
 const eventImport = async() => {
-  // for (let i = 0; i < data.length; i++) {
-  //   const pago = data[i]
-  //   pagoModel.value.id = pago.id
-  //   pagoModel.value.nombre_cliente = pago.nombre_cliente
-  //   pagoModel.value.numero_documento = pago.numero_documento
-  //   pagoModel.value.numero_operacion = pago.numero_operacion
-  //   pagoModel.value.fecha_operacion = pago.fecha_operacion
-  //   pagoModel.value.monto = pago.monto
-  //   pagoModel.value.concepto = pago.concepto
-  //   pagoModel.value.is_conciliado = true
-  //   await pagoStore.save_pago(pagoModel.value)
-  // }
-  // createToast('Pagos Conciliados', {
-  //   type: 'success',
-  //   timeout: 1000,
-  // })
-  console.log('PROCESADO')
+  const response = await pagoStore.conciliar_pagos(pagosList.value)
+  if (!response) {
+    createToast('Error al conciliar los pagos', {
+      type: 'danger',
+      timeout: 5000,
+      hideProgressBar: true,
+    })
+    return
+  }
+  createToast(`Se Conciliaron : ${pagosList.value.length} pagos`, {
+    type: 'success',
+    timeout: 3000,
+    hideProgressBar: true,
+  })
+  pagosList.value = []
+  document.getElementById('lblFileName').innerHTML = 'Archivo Excel'
+  document.getElementById('file-upload').value = ''
+  buscar.value = '...'
+  buscar.value = ''
 }
 </script>
 <template>
@@ -169,15 +187,18 @@ const eventImport = async() => {
             <div>
               <label for="buscar" class="sr-only">Buscar</label>
               <input
-                id="buscar" v-model="buscar" type="search"
-                name="buscar"
+                id="buscar" v-model="buscar" type="search" name="buscar"
                 class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 placeholder="Buscar pago"
               >
             </div>
           </div>
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
-            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" @click="eventImport()">
+            <button
+              type="button"
+              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click="eventImport()"
+            >
               Procesar
             </button>
           </div>
@@ -216,9 +237,19 @@ const eventImport = async() => {
                 o arrastrar y soltar
               </p>
             </div>
-            <p class="text-xs text-gray-500">
-              TXT, BATCH up to 10MB
+            <p id="lblFileName" class="text-xs text-gray-500">
+              ARCHIVO EXCEL
             </p>
+
+            <div v-if="pagosList.length > 0" class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+              <button
+                type="button"
+                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                @click="eventImport()"
+              >
+                Procesar Ahora
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -255,7 +286,10 @@ const eventImport = async() => {
               <tr v-for="concepto in pagoStore.pagos" :key="concepto.id" class="bg-white">
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
-                    <a class="group inline-flex space-x-2 truncate text-sm cursor-pointer" @click="eventEdit(concepto.id)">
+                    <a
+                      class="group inline-flex space-x-2 truncate text-sm cursor-pointer"
+                      @click="eventEdit(concepto.id)"
+                    >
                       <CashIcon
                         class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
@@ -274,9 +308,7 @@ const eventImport = async() => {
                   <span class="text-gray-900 font-medium">{{ concepto.monto }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span
-                    :class="estadoEstilo(concepto.is_conciliado)"
-                  >
+                  <span :class="estadoEstilo(concepto.is_conciliado)">
                     {{ concepto.is_conciliado ? "Conciliado" : "No conciliado" }}
                   </span>
                 </td>
@@ -314,7 +346,7 @@ const eventImport = async() => {
             class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
           >
             <!-- contenido-->
-            <form action="#" method="POST">
+            <form method="POST" @submit.prevent="eventSave">
               <div class="shadow sm:rounded-md sm:overflow-hidden">
                 <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
                   <div>
@@ -329,36 +361,47 @@ const eventImport = async() => {
                   <div class="grid grid-cols-6 gap-6">
                     <div class="col-span-6">
                       <label for="concepto" class="block text-sm font-medium text-gray-700">Nombre Cliente</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.nombre_cliente }}
                       </label>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Documento</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.numero_documento }}
                       </label>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">Numero Operación</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.numero_operacion }}
                       </label>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">MONTO</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.monto }}
                       </label>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
                       <label for="codigo-pago" class="block text-sm font-medium text-gray-700">FECHA</label>
-                      <label class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm">
+                      <label
+                        class="mt-1 block w-full  py-2 px-3 focus:outline-none focus:ring-info focus:border-info sm:text-sm"
+                      >
                         {{ pagoModel.fecha_operacion }}
                       </label>
                     </div>
                     <div class="col-span-6">
-                      <label for="concepto" class="block text-sm font-medium text-gray-700">Codigo de Conciliación</label>
+                      <label for="concepto" class="block text-sm font-medium text-gray-700">Codigo de
+                        Conciliación</label>
                       <input
                         id="concepto" v-model="pagoModel.numero_conciliacion" type="text" name="concepto"
                         autocomplete="of"
@@ -368,24 +411,23 @@ const eventImport = async() => {
                   </div>
                 </div>
               </div>
-            </form>
 
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button
-                type="button"
-                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-info text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:ml-3 sm:w-auto sm:text-sm"
-                @click="eventSave()"
-              >
-                Guardar
-              </button>
-              <button
-                ref="cancelButtonRef" type="button"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                @click="eventCancel()"
-              >
-                Cancelar
-              </button>
-            </div>
+              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-info text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Guardar
+                </button>
+                <button
+                  ref="cancelButtonRef" type="button"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  @click="eventCancel()"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </TransitionChild>
       </div>

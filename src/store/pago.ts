@@ -58,8 +58,29 @@ export const UsePagoStore = defineStore('pago', {
         if (pago.id)
           response = await axios.put(`economicos/pagos/${pago.id}/`, pago)
         else
-          response = await axios.post('/economicos/pagos/', pago)
+          response = await axios.post('economicos/pagos/', pago)
+
         return response
+      }
+      catch (e) {
+        return null
+      }
+    },
+
+    async conciliar_pagos(pagos: PagoModel[]) {
+      try {
+        const response = await axios.post('economicos/conciliar_pagos/', pagos)
+        return response
+      }
+      catch (e) {
+        return null
+      }
+    },
+
+    async get_dashboard() {
+      try {
+        const { data } = await axios.get('/economicos/get_dashboard/')
+        return data
       }
       catch (e) {
         return null

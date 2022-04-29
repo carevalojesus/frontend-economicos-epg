@@ -46,7 +46,13 @@ const eventCancel = async() => {
     programa: 0,
   })
   open.value = false
+  programaSelected.value = {} as ProgramaModel
 }
+
+watch(open, (val) => {
+  if (!val)
+    eventCancel()
+})
 
 const eventsave = async() => {
   if (!programaSelected.value)
@@ -62,7 +68,7 @@ const eventsave = async() => {
   })
 
   conceptoStore.set_conceptos('')
-  eventCancel()
+  open.value = false
 }
 const eventEdit = async(id: number) => {
   const concepto = await conceptoStore.set_concepto_by_id(id)
@@ -115,9 +121,17 @@ const eventEdit = async(id: number) => {
           <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
             <div>
               <label for="buscar" class="sr-only">Buscar</label>
-              <input id="buscar" v-model="conceptoStr" type="search" name="buscar" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Buscar concepto" @input="conceptoStore.set_conceptos(conceptoStr)">
+              <input
+                id="buscar" v-model="conceptoStr" type="search" name="buscar"
+                class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="Buscar concepto" @input="conceptoStore.set_conceptos(conceptoStr)"
+              >
             </div>
-            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" @click="open = true">
+            <button
+              type="button"
+              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click="open = true"
+            >
               Nuevo concepto
             </button>
           </div>
@@ -144,7 +158,9 @@ const eventEdit = async(id: number) => {
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   IMPORTE
                 </th>
-                <th class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block">
+                <th
+                  class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
+                >
                   ESTADO
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -157,7 +173,10 @@ const eventEdit = async(id: number) => {
                 <td class="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div class="flex">
                     <a href="#" class="group inline-flex space-x-2 truncate text-sm" @click="eventEdit(concepto.id)">
-                      <CashIcon class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                      <CashIcon
+                        class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                        aria-hidden="true"
+                      />
                       <p class="text-gray-500 truncate group-hover:text-gray-900">
                         {{ concepto.nombre }}
                       </p>
@@ -169,10 +188,16 @@ const eventEdit = async(id: number) => {
                   <span class="text-gray-900 font-medium">{{ concepto.precio }} </span>
                 </td>
                 <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
-                  <span v-if="concepto.is_active" :class="[estadoEstilo['activo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                  <span
+                    v-if="concepto.is_active"
+                    :class="[estadoEstilo['activo'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']"
+                  >
                     ACTIVO
                   </span>
-                  <span v-else :class="[estadoEstilo['failed'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']">
+                  <span
+                    v-else
+                    :class="[estadoEstilo['failed'], 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize']"
+                  >
                     INACTIVO
                   </span>
                 </td>
@@ -192,7 +217,10 @@ const eventEdit = async(id: number) => {
             </tbody>
           </table>
           <!-- Pagination -->
-          <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
+          <nav
+            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+            aria-label="Pagination"
+          >
             <div class="hidden sm:block">
               <p class="text-sm text-gray-700">
                 Showing
@@ -211,8 +239,16 @@ const eventEdit = async(id: number) => {
               </p>
             </div>
             <div class="flex-1 flex justify-between sm:justify-end">
-              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Anterior </a>
-              <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Siguiente </a>
+              <a
+                href="#"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Anterior </a>
+              <a
+                href="#"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Siguiente </a>
             </div>
           </nav>
         </div>

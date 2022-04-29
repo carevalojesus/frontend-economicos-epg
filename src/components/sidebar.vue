@@ -28,7 +28,7 @@ const navigation = [
     icon: DocumentReportIcon,
     current: false,
     children: [
-      { name: 'Económico', href: 'reporte-economico' },
+      { name: 'Económico', href: 'reporte-economico-estudiante' },
       { name: 'Ingresos', href: 'conciliar-pagos' },
       { name: 'Programas', href: 'importar-pagos' },
     ],

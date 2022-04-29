@@ -28,7 +28,14 @@ const Readtxt = async(e: Event) => {
       pagos.forEach((pago: string) => {
         const codigo_concepto = pago.slice(35, 43)
         const condicion = pago.slice(112, 113)
-        const concepto = conceptoStore.get_concepto_by_codigo(codigo_concepto)
+        let monto_str = pago.slice(62, 77)
+        let decimales = ''
+        decimales = monto_str.slice(13, 15)[0]
+        monto_str = monto_str.slice(1, 13)
+        monto_str = `${monto_str}.${decimales}`
+        const monto = parseFloat(monto_str)
+
+        const concepto = conceptoStore.get_concepto_by_codigo(codigo_concepto, monto)
         if (concepto && Number(condicion) === 2) {
           const pagoModel = {} as PagoModel
           let numero_documeno = pago.slice(47, 62)
@@ -42,12 +49,7 @@ const Readtxt = async(e: Event) => {
           const dia = fecha_operacion.slice(6, 8)
           fecha_operacion = `${anio}-${mes}-${dia}`
           const numero_operacion = pago.slice(18, 25)
-          let monto_str = pago.slice(62, 77)
-          let decimales = ''
-          decimales = monto_str.slice(13, 15)[0]
-          monto_str = monto_str.slice(1, 13)
-          monto_str = `${monto_str}.${decimales}`
-          const monto = parseFloat(monto_str)
+
           //
           pagoModel.nombre_cliente = nombre_cliente
           pagoModel.numero_documento = numero_documeno

@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async save_to_local_storage(payload: string) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           localStorage.setItem('userpgtoken', payload)
           resolve(true)
@@ -57,6 +57,7 @@ export const useUserStore = defineStore('user', {
         const { status, data } = await axios.post('/accounts/login/', {
           email,
           password,
+          cliente: import.meta.env.VITE_APP_CLIENTE_KEY,
         })
         const { token, user, groups, permissions } = data
         await this.save_to_local_storage(token)
@@ -65,7 +66,7 @@ export const useUserStore = defineStore('user', {
         this.permissions = permissions
         return { status, data }
       }
-      catch (e) {
+      catch (e: any) {
         return { status: e.response.status, data: e.response.data }
       }
     },

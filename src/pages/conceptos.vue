@@ -308,7 +308,7 @@ const eventEdit = async(id: number) => {
                       <div class="relative mt-1">
                         <ComboboxInput
                           class="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-info focus:outline-none focus:ring-1 focus:ring-info sm:text-sm"
-                          autocomplete="off" :display-value="(programa) => programa.nombre || ''"
+                          autocomplete="off" :display-value="(programa: any) => programa.nombre || ''"
                           @change="query = $event.target.value"
                         />
                         <ComboboxButton

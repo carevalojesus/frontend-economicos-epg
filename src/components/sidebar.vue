@@ -30,7 +30,7 @@ const navigation = [
     children: [
       { name: 'Económico', href: 'reporte-economico-estudiante' },
       { name: 'Ingresos', href: 'conciliar-pagos' },
-      { name: 'Programas', href: 'importar-pagos' },
+      { name: 'Programas', href: 'reporte-programas' },
     ],
   },
 ]

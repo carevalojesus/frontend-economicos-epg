@@ -38,6 +38,7 @@ export interface PagoModel {
   is_active: boolean
   concepto: number
   is_conciliado: boolean
+  is_validado: boolean
   concepto_nombre: string
 }
 export interface ProgramaModel {

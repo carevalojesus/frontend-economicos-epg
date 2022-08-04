@@ -25,6 +25,7 @@ const pagoModel = ref<PagoModel>({
   concepto_nombre: '',
   is_conciliado: false,
   numero_conciliacion: '',
+  is_validado: false,
 })
 
 const estadoEstilo = (isConciliado: boolean) => {
@@ -52,10 +53,16 @@ const eventCancel = async() => {
     is_active: true,
     concepto: 0,
     is_conciliado: false,
+    is_validado: false,
     concepto_nombre: '',
     numero_conciliacion: '',
   })
+  conceptoSelected.value = {} as ConceptoModel
   open.value = false
+}
+const selectedConcepto = () => {
+  pagoModel.value.monto = conceptoSelected.value.precio
+  pagoModel.value.concepto = conceptoSelected.value.id
 }
 const eventEdit = async(id: number) => {
   const pago = await pagoStore.set_concepto_by_id(id)
@@ -66,11 +73,11 @@ const eventEdit = async(id: number) => {
   pagoModel.value.fecha_operacion = pago.fecha_operacion
   pagoModel.value.monto = pago.monto
   conceptoSelected.value = conceptoStore.find_conceptos_by_id(pago.concepto) || {} as ConceptoModel
-  // programaSelected.value = programaStore.find_programa_by_id(concepto.programa) || {} as ProgramaModel
+  pagoModel.value.concepto = conceptoSelected.value.id
   open.value = true
 }
 const eventsave = async() => {
-  // await pagoStore.save_pago(pagoModel.value)
+  await pagoStore.save_pago(pagoModel.value)
 
   createToast('pago guardado', {
     type: 'success',
@@ -162,9 +169,12 @@ const eventsave = async() => {
                   IMPORTE
                 </th>
                 <th
-                  class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
+                  class="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:table-cell"
                 >
                   ESTADO
+                </th>
+                <th class="hidden px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider md:table-cell">
+                  Validado
                 </th>
                 <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   FECHA
@@ -190,9 +200,14 @@ const eventsave = async() => {
                   S/
                   <span class="text-gray-900 font-medium">{{ pago.monto }} </span>
                 </td>
-                <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:block">
+                <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:table-cell">
                   <span :class="estadoEstilo(pago.is_conciliado)">
                     {{ pago.is_conciliado ? 'Conciliado' : 'Ingresado' }}
+                  </span>
+                </td>
+                <td class="hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500 md:table-cell">
+                  <span :class="estadoEstilo(pago.is_validado)">
+                    {{ pago.is_validado ? 'SI' : 'NO' }}
                   </span>
                 </td>
                 <td class="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
@@ -217,32 +232,11 @@ const eventsave = async() => {
           >
             <div class="hidden sm:block">
               <p class="text-sm text-gray-700">
-                Showing
                 {{ ' ' }}
-                <span class="font-medium">1</span>
+                <span class="font-medium">{{ pagoStore.pagos.length }}</span>
                 {{ ' ' }}
-                to
-                {{ ' ' }}
-                <span class="font-medium">10</span>
-                {{ ' ' }}
-                of
-                {{ ' ' }}
-                <span class="font-medium">20</span>
-                {{ ' ' }}
-                results
+                resultados
               </p>
-            </div>
-            <div class="flex-1 flex justify-between sm:justify-end">
-              <a
-                href="#"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Anterior </a>
-              <a
-                href="#"
-                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Siguiente </a>
             </div>
           </nav>
         </div>
@@ -308,6 +302,7 @@ const eventsave = async() => {
                           <ComboboxOption
                             v-for="concepto in conceptoStore.filter_conceptos_by_nombre(query)"
                             :key="concepto.id" v-slot="{ active, selected }" :value="concepto" as="template"
+                            @click="selectedConcepto"
                           >
                             <li
                               :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-info text-white' : 'text-gray-900']"
@@ -384,6 +379,7 @@ const eventsave = async() => {
               <button
                 type="button"
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-info text-base font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info sm:ml-3 sm:w-auto sm:text-sm"
+                @click="eventsave()"
               >
                 Guardar
               </button>

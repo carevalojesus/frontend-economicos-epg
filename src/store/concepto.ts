@@ -9,8 +9,8 @@ export const UseConceptoStore = defineStore('concepto', {
     }
   },
   getters: {
-    get_concepto_by_codigo: state => (codigo: string, monto: number) => {
-      return state.conceptos.find(concepto => Number(concepto.codigo) === Number(codigo) && Number(concepto.precio) === Number(monto))
+    get_concepto_by_codigo: state => (codigo: string) => {
+      return state.conceptos.find(concepto => Number(concepto.codigo) === Number(codigo))
     },
     filter_conceptos_by_nombre: state => (nombre: string) => {
       return state.conceptos.filter(concepto => concepto.nombre.toLowerCase().includes(nombre.toLowerCase()))

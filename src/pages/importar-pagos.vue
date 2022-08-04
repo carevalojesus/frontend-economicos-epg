@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Console } from 'console'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
 import { createToast } from 'mosha-vue-toastify'
 import type { PagoModel } from '~/interfaces/models'
@@ -34,8 +35,7 @@ const Readtxt = async(e: Event) => {
         monto_str = monto_str.slice(1, 13)
         monto_str = `${monto_str}.${decimales}`
         const monto = parseFloat(monto_str)
-
-        const concepto = conceptoStore.get_concepto_by_codigo(codigo_concepto, monto)
+        const concepto = conceptoStore.get_concepto_by_codigo(codigo_concepto)
         if (concepto && Number(condicion) === 2) {
           const pagoModel = {} as PagoModel
           let numero_documeno = pago.slice(47, 62)

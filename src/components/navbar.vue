@@ -54,7 +54,7 @@ const user = {
                 <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Configuración</a>
               </MenuItem>
               <MenuItem v-slot="{ active }">
-                <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-red-500']">Cerrar sesión</a>
+                <a href="/" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-red-500']">Cerrar sesión</a>
               </MenuItem>
             </MenuItems>
           </transition>

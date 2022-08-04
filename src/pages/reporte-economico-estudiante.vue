@@ -1,31 +1,15 @@
 <script setup lang="ts">
 import { createToast } from 'mosha-vue-toastify'
-import { Dialog, DialogOverlay, TransitionChild, TransitionRoot } from '@headlessui/vue'
+
 import {
-  CalendarIcon,
-  CogIcon,
-  HomeIcon,
-  MapIcon,
-  MenuIcon,
-  SearchCircleIcon,
-  SpeakerphoneIcon,
-  UserGroupIcon,
-  ViewGridAddIcon,
-  XIcon,
-} from '@heroicons/vue/outline'
-import {
-  ArrowNarrowLeftIcon, CheckIcon, ChevronLeftIcon, FilterIcon, MailIcon,
-  PaperClipIcon,
-  PhoneIcon,
-  QuestionMarkCircleIcon,
-  SearchIcon,
+  CheckIcon,
   ThumbUpIcon,
   UserIcon,
 } from '@heroicons/vue/solid'
 
 import { useReporteStore } from '~/store/reporte'
-const exist_result = ref(false)
-const dni = ref('42596222')
+// const exist_result = ref(false)
+const dni = ref('')
 const reportStore = useReporteStore()
 const report_obj = ref(null)
 const eventTypes = {
@@ -56,13 +40,6 @@ const timeline = ref(
   ],
 )
 
-const people = [
-  { anio: '2019', fecha: '01/01/2019', ndoc: '1-404901', banco: '56900186', cuota: '01', concepto: 'PENSION', monto: '370.00', pago: '370.00', deuda: '5,550.00' },
-]
-const matricula = [
-  { anio: '2019', fecha: '01/01/2019', ndoc: '1-404901', banco: '56900186', cuota: '01', concepto: 'MATRICULA', monto: '200.00', pago: '200.00', deuda: '600.00' },
-]
-
 const get_reporte_economico_alumno = async() => {
   if (dni.value.length <= 0)
     return
@@ -81,6 +58,22 @@ const get_reporte_economico_alumno = async() => {
   timeline.value[1].target = result.expediente.programa_nombre
   timeline.value[2].target = result.expediente.promocion || '-'
   report_obj.value = result
+}
+
+const reporte_economico_pdf = async(numero_documento: string) => {
+  const { status, data } = await reportStore.get_reporte_economico_alumno_pdf(numero_documento)
+  if (status !== 200) {
+    createToast('Error al obtener el reporte', {
+      type: 'danger',
+      hideProgressBar: true,
+    })
+    return
+  }
+
+  const a = document.createElement('a')
+  a.target = '_blank'
+  a.href = reportStore.get_media_url(data.path)
+  a.click()
 }
 </script>
 
@@ -108,7 +101,7 @@ const get_reporte_economico_alumno = async() => {
               class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               @click="get_reporte_economico_alumno()"
             >
-              Nuevo pago
+              Buscar
             </button>
           </div>
         </div>
@@ -191,10 +184,10 @@ const get_reporte_economico_alumno = async() => {
                 </div>
                 <div class="sm:col-span-1">
                   <dt class="text-sm font-medium text-gray-500">
-                    Costo Total
+                    Pago Total a la Fecha
                   </dt>
                   <dd class="mt-1 text-sm text-gray-900">
-                    S/ {{ report_obj.suma_pagos_programa }}
+                    S/ {{ report_obj.pagos_totales }}
                   </dd>
                 </div>
               </dl>
@@ -261,6 +254,7 @@ const get_reporte_economico_alumno = async() => {
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+            @click="reporte_economico_pdf(dni)"
           >
             IMPRIMIR
           </button>
@@ -372,25 +366,25 @@ const get_reporte_economico_alumno = async() => {
                 <tfoot>
                   <tr>
                     <th
-                      scope="row" colspan="6"
+                      scope="row" colspan="7"
                       class="hidden pl-6 pr-3 pt-6 text-right text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
                     >
-                      CONCEPTO
+                      COSTO PENSIÓN
                     </th>
                     <th
                       scope="row"
                       class="pl-4 pr-3 pt-6 text-left text-sm font-normal text-gray-500 sm:hidden"
                     >
-                      CONCEPTO
+                      COSTO PENSIÓN
                     </th>
                     <td class="pl-3 pr-4 pt-6 text-right text-sm text-gray-500 sm:pr-6 md:pr-0">
-                      {{ report_obj.costo_total_total }}
+                      {{ report_obj.costo_total_pension }}
                     </td>
                   </tr>
 
                   <tr>
                     <th
-                      scope="row" colspan="6"
+                      scope="row" colspan="7"
                       class="hidden pl-6 pr-3 pt-4 text-right text-sm font-semibold text-gray-900 sm:table-cell md:pl-0"
                     >
                       DEBE
@@ -412,11 +406,11 @@ const get_reporte_economico_alumno = async() => {
             </div>
           </div>
         </div>
-        <div class="mt-6 max-w-5xl pt-10 px-4 sm:px-6 lg:px-8">
-          <p class="text-black text-left font-bold">
-            Deuda Matricula
-          </p>
-        </div>
+      </div>
+      <div class="mt-6 max-w-5xl pt-10 px-4 sm:px-6 lg:px-8">
+        <p class="text-black text-left font-bold">
+          Deuda Matricula
+        </p>
       </div>
       <div class="mt-8 flex flex-col">
         <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -518,16 +512,16 @@ const get_reporte_economico_alumno = async() => {
                 <tfoot>
                   <tr>
                     <th
-                      scope="row" colspan="6"
+                      scope="row" colspan="7"
                       class="hidden pl-6 pr-3 pt-6 text-right text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
                     >
-                      CONCEPTO
+                      COSTO MATRICULA
                     </th>
                     <th
                       scope="row"
                       class="pl-4 pr-3 pt-6 text-left text-sm font-normal text-gray-500 sm:hidden"
                     >
-                      CONCEPTO
+                      COSTO MATRICULA
                     </th>
                     <td class="pl-3 pr-4 pt-6 text-right text-sm text-gray-500 sm:pr-6 md:pr-0">
                       {{ report_obj.costo_total_matricula }}
@@ -536,7 +530,7 @@ const get_reporte_economico_alumno = async() => {
 
                   <tr>
                     <th
-                      scope="row" colspan="6"
+                      scope="row" colspan="7"
                       class="hidden pl-6 pr-3 pt-4 text-right text-sm font-semibold text-gray-900 sm:table-cell md:pl-0"
                     >
                       DEBE
@@ -551,6 +545,101 @@ const get_reporte_economico_alumno = async() => {
                       class="pl-3 pr-4 pt-4 text-right text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
                     >
                       {{ report_obj.total_debe_matricula }}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 max-w-5xl pt-10 px-4 sm:px-6 lg:px-8">
+        <p class="text-black text-left font-bold">
+          Otros Conceptos
+        </p>
+      </div>
+      <div class="mt-8 flex flex-col">
+        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
+                      AÑO
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      FECHA
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      N° DOC/OGA
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      BCO. DE LA NACION
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      CONCEPTO
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      MONTO
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <tr v-for="(pago, index) in report_obj.pagos_otros" :key="index">
+                    <td
+                      class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                    >
+                      {{ pago.anio_operacion }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {{ pago.fecha_operacion }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {{ pago.numero_conciliacion || '-' }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {{ pago.numero_operacion }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {{ pago.concepto }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
+                      {{ pago.monto_cuota }}
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th
+                      scope="row" colspan="5"
+                      class="hidden pl-6 pr-3 pt-4 text-right text-sm font-semibold text-gray-900 sm:table-cell md:pl-0"
+                    >
+                      TOTAL
+                    </th>
+                    <td
+                      class="pl-3 pr-4 pt-4 text-center text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0"
+                    >
+                      {{ report_obj.total_otros }}
                     </td>
                   </tr>
                 </tfoot>

@@ -10,7 +10,6 @@ const navigation = [
     current: false,
     children: [
       { name: 'Conceptos', href: 'conceptos' },
-      { name: 'Usuarios', href: 'usuarios' },
     ],
   },
   {
@@ -28,9 +27,9 @@ const navigation = [
     icon: DocumentReportIcon,
     current: false,
     children: [
-      { name: 'Económico', href: 'reporte-economico-estudiante' },
-      { name: 'Ingresos', href: 'conciliar-pagos' },
-      { name: 'Programas', href: 'importar-pagos' },
+      { name: 'Alumno', href: 'reporte-economico-estudiante' },
+      { name: 'Programas', href: 'conciliar-pagos' },
+      { name: 'Ingresos', href: 'importar-pagos' },
     ],
   },
 ]
@@ -44,7 +43,7 @@ const secondaryNavigation = [
   <div class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
     <div class="flex flex-col flex-grow bg-primary-700 pt-5 pb-4 overflow-y-auto">
       <div class="flex items-center flex-shrink-0 px-4">
-        <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/easywire-logo-cyan-300-mark-white-text.svg" alt="Easywire logo">
+        <img class="h-16 w-auto" src="src/media/img/epg-2022-sidebar.png" alt="logo">
       </div>
       <nav class="mt-5 flex-1 flex flex-col divide-y divide-primary-500 overflow-y-auto" aria-label="Sidebar">
         <div class="px-2 space-y-1">
@@ -76,14 +75,14 @@ const secondaryNavigation = [
           </div>
         </div>
         <!--navigation sidebar-->
-        <div class="mt-6 pt-6">
+        <!--<div class="mt-6 pt-6">
           <div class="px-2 space-y-1">
             <a v-for="item in secondaryNavigation" :key="item.name" :href="item.href" class="group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md text-blue-100 hover:text-white hover:bg-blue-700">
               <component :is="item.icon" class="mr-4 h-6 w-6 text-cyan-200" aria-hidden="true" />
               {{ item.name }}
             </a>
           </div>
-        </div>
+        </div>-->
       </nav>
     </div>
   </div>

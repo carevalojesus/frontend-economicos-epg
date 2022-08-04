@@ -25,9 +25,9 @@ const cards = ref([
 
 onMounted(async() => {
   const result = await pagoStore.get_dashboard()
-  cards.value[0].amount = `S/ ${result.total_pagos_anio}`
-  cards.value[1].amount = `S/ ${result.total_pagos_mes}`
-  cards.value[2].amount = result.cantidad_pagos_por_conciliar
+  cards.value[0].amount = `S/ ${result.total_pagos_anio || 0}`
+  cards.value[1].amount = `S/ ${result.total_pagos_mes || 0}`
+  cards.value[2].amount = result.cantidad_pagos_por_conciliar || 0
   pagos_del_dia_list.value = result.pagos_del_dia_list
 })
 
@@ -39,16 +39,11 @@ onMounted(async() => {
         <div class="flex-1 min-w-0">
           <!-- Profile -->
           <div class="flex items-center">
-            <span class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary-500">
+            <span class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary-500 hidden lg:flex">
               <span class="text-lg font-medium leading-none text-white">HP</span>
             </span>
             <div>
               <div class="flex items-center">
-                <img
-                  class="h-16 w-16 rounded-full sm:hidden"
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80"
-                  alt=""
-                >
                 <h1 class="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
                   Buenos días, Hernán Pizarro
                 </h1>
@@ -66,7 +61,7 @@ onMounted(async() => {
                 </dt>
                 <dd class="mt-3 flex items-center text-sm text-gray-500 font-medium sm:mr-6 sm:mt-0 capitalize">
                   <CheckCircleIcon class="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400" aria-hidden="true" />
-                  Administrador
+                  Usuario
                 </dd>
               </dl>
             </div>
@@ -75,18 +70,10 @@ onMounted(async() => {
         <div class="mt-6 flex space-x-3 md:mt-0 md:ml-4">
           <button
             type="button"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             <router-link to="ver-pagos">
               Ver pagos
-            </router-link>
-          </button>
-          <button
-            type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            <router-link to="asignar-pagos">
-              Asignar Pagos
             </router-link>
           </button>
         </div>

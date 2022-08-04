@@ -28,7 +28,7 @@ const navigation = [
     current: false,
     children: [
       { name: 'Alumno', href: 'reporte-economico-estudiante' },
-      { name: 'Programas', href: 'conciliar-pagos' },
+      { name: 'Programas', href: 'reporte-programas' },
       { name: 'Ingresos', href: 'importar-pagos' },
     ],
   },

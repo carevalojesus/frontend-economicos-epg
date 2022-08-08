@@ -29,7 +29,6 @@ const navigation = [
     children: [
       { name: 'Alumno', href: 'reporte-economico-estudiante' },
       { name: 'Programas', href: 'reporte-programas' },
-      { name: 'Ingresos', href: 'importar-pagos' },
     ],
   },
 ]

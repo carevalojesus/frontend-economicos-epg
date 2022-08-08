@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" >
 import { createToast } from 'mosha-vue-toastify'
 import {
   Combobox, ComboboxButton, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions,
@@ -23,12 +23,24 @@ onMounted(() => {
 })
 
 const get_reporte_economico_alumno = async(programa_id: any) => {
-  if (fecha.value.length <= 0)
+  if (fecha.value.length <= 0) {
+    createToast('Seleccione una fecha', {
+      type: 'danger',
+      hideProgressBar: true,
+    })
     return
+  }
 
   const { status, data } = await reportStore.get_reporte_programas_excel(programa_id, fecha.value) || {}
   if (status !== 200) {
     createToast('Error al exportar excel', {
+      type: 'danger',
+      hideProgressBar: true,
+    })
+    return
+  }
+  if (data.cantidad === 0) {
+    createToast('No hay registros para exportar', {
       type: 'danger',
       hideProgressBar: true,
     })
@@ -115,7 +127,7 @@ const get_reporte_economico_alumno = async(programa_id: any) => {
                 class="ml-0 w-full items-center px-4 border border-transparent mt-9 rounded-md shadow-sm font-medium text-white bg-primary-500 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 @click="get_reporte_economico_alumno(programaSelected.id)"
               >
-                Buscar
+                Imprimir
               </button>
             </div>
           </div>

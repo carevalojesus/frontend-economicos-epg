@@ -24,8 +24,18 @@ export const useReporteStore = defineStore('reporte', {
     },
     async get_reporte_programas_excel(programa_id: string, fecha: string) {
       try {
-        const { status, data } = await axios.get('/reportes/get_reporte_programas_excel/', { params: { programa_id, fecha } 
+        const { status, data } = await axios.get('/reportes/get_reporte_programas_excel/', {
+          params: {
+            programa_id,
+            fecha,
+          },
         })
+        return { status, data }
+      }
+      catch (error) {
+        return null
+      }
+    },
     async get_reporte_economico_alumno_pdf(numero_documento: string) {
       try {
         const obj = {

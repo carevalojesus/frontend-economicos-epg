@@ -8,7 +8,6 @@ const url = (
 
 const instance = axios.create({
   baseURL: url,
-  timeout: 3000,
 })
 
 instance.interceptors.request.use((config) => {

@@ -3,7 +3,7 @@
     <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
-          <img class="h-16 w-auto" src="/src/images/logo-EPG-color.png" alt="Logo UNAP">
+          <img class="h-16 w-auto" src="/src/media/img/epg-2022.png" alt="Logo UNAP">
           <h2 class="mt-6 text-3xl font-extrabold text-gray-700 uppercase">
             Sistema de Gestión Económica
           </h2>

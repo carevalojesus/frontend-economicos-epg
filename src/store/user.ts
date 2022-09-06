@@ -8,18 +8,20 @@ export const useUserStore = defineStore('user', {
       user: {} as UserModel,
       groups: [] as GrupoModel[],
       permissions: [] as PermissionsModel[],
+      persona_id: 0,
+      persona_nombres: '',
+      persona_apellido_paterno: '',
     }
   },
   getters: {
     get_full_name: (state) => {
-      return `${state.user.first_name} ${state.user.last_name}`
+      return `${state.persona_nombres} ${state.persona_apellido_paterno}`
     },
-
     get_short_name: (state) => {
       if (!state.user)
         return ''
-      let first_name = state.user.first_name || ''
-      let last_name = state.user.last_name || ''
+      let first_name = state.persona_nombres || ''
+      let last_name = state.persona_apellido_paterno || ''
       if (first_name)
         first_name = first_name.split(' ')[0]
       if (last_name)
@@ -31,8 +33,8 @@ export const useUserStore = defineStore('user', {
     get_char_full_name: (state) => {
       if (!state.user)
         return ''
-      let first_name = state.user.first_name || ''
-      let last_name = state.user.last_name || ''
+      let first_name = state.persona_nombres || ''
+      let last_name = state.persona_apellido_paterno || ''
       if (first_name)
         first_name = first_name.charAt(0)
       if (last_name)
@@ -59,11 +61,14 @@ export const useUserStore = defineStore('user', {
           password,
           cliente: import.meta.env.VITE_APP_CLIENTE_KEY,
         })
-        const { token, user, groups, permissions } = data
+        const { token, user, groups, permissions, persona_id, persona_nombres, persona_apellido_paterno } = data
         await this.save_to_local_storage(token)
         this.user = user
         this.groups = groups
         this.permissions = permissions
+        this.persona_id = persona_id
+        this.persona_nombres = persona_nombres
+        this.persona_apellido_paterno = persona_apellido_paterno
         return { status, data }
       }
       catch (e: any) {

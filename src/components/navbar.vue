@@ -11,12 +11,17 @@ import {
 import {
   ChevronDownIcon,
 } from '@heroicons/vue/solid'
+import { useUserStore } from '~/store/user'
+const userStore = useUserStore()
+const persona = ref ('')
+const rol = ref('')
+const avatar = ref ('')
 
-const user = {
-  name: 'Hernán Pizarro',
-  avatar: 'HP',
-  rol: 'Administrador',
-}
+onMounted(async() => {
+  persona.value = userStore.get_full_name
+  rol.value = userStore.groups[0].name
+  avatar.value = userStore.get_char_full_name
+})
 </script>
 <template>
   <div class="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:border-none">
@@ -34,11 +39,11 @@ const user = {
               <a href="#" class="flex-shrink-0 group block">
                 <div class="flex items-center">
                   <div class=" text-right">
-                    <p class="text-sm font-medium text-gray-700 group-hover:text-gray-700">{{ user.name }}</p>
-                    <p class="text-xs font-medium text-green-500">{{ user.rol }}</p>
+                    <p class="text-sm font-medium text-gray-700 group-hover:text-gray-700">{{ persona }}</p>
+                    <p class="text-xs font-medium text-green-500">{{ rol }}</p>
                   </div>
                   <span class="ml-3 inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary-500">
-                    <span class="text-sm font-medium leading-none text-white"> {{ user.avatar }} </span>
+                    <span class="text-sm font-medium leading-none text-white"> {{ avatar }} </span>
                   </span>
                 </div>
               </a>

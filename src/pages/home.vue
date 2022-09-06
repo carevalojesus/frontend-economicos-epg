@@ -8,9 +8,13 @@ import {
   ScaleIcon,
 } from '@heroicons/vue/outline'
 import { UsePagoStore } from '~/store/pago'
+import { useUserStore } from '~/store/user'
 const pagoStore = UsePagoStore()
+const userStore = useUserStore()
 const pagos_del_dia_list = ref<Pago[]>([])
-
+const persona = ref(' ')
+const rol = ref('')
+const avatar = ref ('')
 const estadoEstilo = (isConciliado: boolean) => {
   if (isConciliado)
     return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-green-100 text-green-800'
@@ -29,6 +33,9 @@ onMounted(async() => {
   cards.value[1].amount = `S/ ${result.total_pagos_mes || 0}`
   cards.value[2].amount = result.cantidad_pagos_por_conciliar || 0
   pagos_del_dia_list.value = result.pagos_del_dia_list
+  persona.value = userStore.get_full_name
+  rol.value = userStore.groups[0].name
+  avatar.value = userStore.get_char_full_name
 })
 
 </script>
@@ -40,12 +47,12 @@ onMounted(async() => {
           <!-- Profile -->
           <div class="flex items-center">
             <span class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary-500 hidden lg:flex">
-              <span class="text-lg font-medium leading-none text-white">HP</span>
+              <span class="text-lg font-medium leading-none text-white">{{ avatar }}</span>
             </span>
             <div>
               <div class="flex items-center">
                 <h1 class="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
-                  Buenos días, Hernán Pizarro
+                  Buenos días, {{ persona }}
                 </h1>
               </div>
               <dl class="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
@@ -54,14 +61,14 @@ onMounted(async() => {
                 </dt>
                 <dd class="flex items-center text-sm text-gray-500 font-medium capitalize sm:mr-6">
                   <OfficeBuildingIcon class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                  Oficina de Asuntos Académicos
+                  Oficina de Asuntos Economicos
                 </dd>
                 <dt class="sr-only">
                   Account status
                 </dt>
                 <dd class="mt-3 flex items-center text-sm text-gray-500 font-medium sm:mr-6 sm:mt-0 capitalize">
                   <CheckCircleIcon class="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400" aria-hidden="true" />
-                  Usuario
+                  {{ rol }}
                 </dd>
               </dl>
             </div>

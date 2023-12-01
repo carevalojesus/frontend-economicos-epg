@@ -139,6 +139,9 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                   <dd class="mt-1 text-sm text-gray-900">
                     {{ report_obj.cuotas }} Cuotas X S/ {{ report_obj.pension }}
                   </dd>
+                  <dd class="mt-1 text-sm text-gray-900">
+                    Pago de {{ (report_obj.cuotas/report_obj.cantidad_matriculas).toFixed(0) }} Cuotas x Ciclo
+                  </dd>
                 </div>
                 <div class="sm:col-span-1">
                   <dt class="text-sm font-medium text-gray-500">
@@ -148,7 +151,7 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                     S/ {{ report_obj.suma_pagos_programa }}
                   </dd>
                   <dd class="mt-1 text-sm text-gray-900">
-                    {{ report_obj.cantidad_pagos_programa }} Cuotas
+                    {{ (report_obj.suma_pagos_programa/(report_obj.pension-1)).toFixed(0) }} Cuotas
                   </dd>
                 </div>
                 <div class="sm:col-span-1">
@@ -275,6 +278,11 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                   <tr>
                     <th
                       scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      N°
+                    </th><th
+                      scope="col"
                       class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
                       AÑO
@@ -301,7 +309,7 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                       scope="col"
                       class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      N° CUOTA
+                      CUOTAS
                     </th>
                     <th
                       scope="col"
@@ -331,6 +339,9 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                   <tr v-for="(pago, index) in report_obj.pagos_programa" :key="index">
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {{ pago.nro_cuota }}
+                    </td>
                     <td
                       class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
                     >
@@ -346,7 +357,7 @@ const reporte_economico_pdf = async(numero_documento: string) => {
                       {{ pago.numero_operacion }}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {{ pago.nro_cuota }}
+                      {{ (pago.monto_cuota/(report_obj.pension-1)).toFixed(0) }}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {{ pago.concepto }}

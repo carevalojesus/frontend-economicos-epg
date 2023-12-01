@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Console } from 'console'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'
 import { createToast } from 'mosha-vue-toastify'
 import type { PagoModel } from '~/interfaces/models'

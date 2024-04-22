@@ -51,5 +51,19 @@ export const useReporteStore = defineStore('reporte', {
         return null
       }
     },
+    async get_reporte_pensiones_programas_excel(programa_id: string, promocion: string) {
+      try {
+        const { status, data } = await axios.get('/reportes/get_reporte_pensiones_programas_excel/', {
+          params: {
+            programa_id,
+            promocion,
+          },
+        })
+        return { status, data }
+      }
+      catch (error) {
+        return null
+      }
+    },
   },
 })

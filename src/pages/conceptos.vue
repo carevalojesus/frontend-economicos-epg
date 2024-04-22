@@ -309,7 +309,7 @@ const eventEdit = async(id: number) => {
                         <ComboboxInput
                           class="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-info focus:outline-none focus:ring-1 focus:ring-info sm:text-sm"
                           autocomplete="off" :display-value="(programa: any) => programa.nombre || ''"
-                          @change="query = $event.target.value"
+                          @change="programaStore.filter_programas_by_nombre($event.target.value)"
                         />
                         <ComboboxButton
                           class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"

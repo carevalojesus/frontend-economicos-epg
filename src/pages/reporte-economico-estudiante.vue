@@ -72,7 +72,7 @@ const reporte_economico_pdf = async(numero_documento: string) => {
 
   const a = document.createElement('a')
   a.target = '_blank'
-  a.href = reportStore.get_media_url(data.path)
+  a.href = data.path
   a.click()
 }
 </script>

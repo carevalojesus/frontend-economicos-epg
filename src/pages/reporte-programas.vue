@@ -47,7 +47,7 @@ const get_reporte_economico_alumno = async(programa_id: any) => {
   report_obj.value = data
   const a = document.createElement('a')
   a.target = '_blank'
-  a.href = reportStore.get_media_url(data.path)
+  a.href = data.path
   a.click()
 }
 </script>

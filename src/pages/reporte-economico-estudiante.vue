@@ -62,7 +62,7 @@ const get_reporte_economico_alumno = async() => {
 
 const reporte_economico_pdf = async(numero_documento: string) => {
   const { status, data } = await reportStore.get_reporte_economico_alumno_pdf(numero_documento)
-  if (status !== 200) {
+   if (status !== 200 || !data) {
     createToast('Error al obtener el reporte', {
       type: 'danger',
       hideProgressBar: true,
@@ -70,10 +70,9 @@ const reporte_economico_pdf = async(numero_documento: string) => {
     return
   }
 
-  const a = document.createElement('a')
-  a.target = '_blank'
-  a.href = data.path
-  a.click()
+  // Crear un Blob con el PDF y abrirlo
+  const fileURL = window.URL.createObjectURL(new Blob([data], { type: 'application/pdf' }))
+  window.open(fileURL, "_blank")
 }
 </script>
 

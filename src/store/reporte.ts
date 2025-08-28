@@ -44,7 +44,9 @@ export const useReporteStore = defineStore('reporte', {
         const obj = {
           numero_documento,
         }
-        const { status, data } = await axios.post('/reportes/get_reporte_economico_alumno_pdf/', obj)
+        const { status, data } = await axios.post('/reportes/get_reporte_economico_alumno_pdf/', obj, {
+          responseType: 'blob',
+        })
         return { status, data }
       }
       catch (error) {
